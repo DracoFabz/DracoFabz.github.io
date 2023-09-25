@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurante Cocina y Comunidad</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Shrikhand&display=swap">
+    <style>
+        /* Paleta de colores */
+        :root {
+            --main-bg-color: #6a3a12; /* Cambiado a #6a3a12 */
+            --header-bg-color: #59a87d; /* Cambiado a color2 */
+            --nav-bg-color: #16453f; /* Cambiado a color3 */
+            --text-color: #091c1a; /* Cambiado a color4 */
+            --font-family: 'Shrikhand', cursive; /* Fuente Shrikhand */
+            --content-bg-color: #000000; /* Cambiado a negro */
+        }
+
+        /* Estilos CSS */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--main-bg-color);
+        }
+        header {
+            background-color: var(--header-bg-color);
+            color: var(--text-color);
+            text-align: center;
+            padding: 10px;
+            position: relative;
+        }
+        .menu-rectangle {
+            background-color: var(--nav-bg-color);
+            width: 50vw; /* El 50% del ancho de la ventana */
+            height: 60px; /* Altura del rectángulo de navegación */
+            margin-left: auto; /* Pegado a la derecha */
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top-left-radius: 30px; /* Esquinas izquierdas redondeadas */
+            border-bottom-left-radius: 30px; /* Esquinas izquierdas redondeadas */
+        }
+        .menu-container {
+            background-color: transparent; /* Fondo transparente para los botones */
+        }
+        .menu-container a {
+            color: white; /* Letras en blanco */
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 18px;
+            padding: 10px 20px; /* Espacio interno en los enlaces */
+        }
+        .content {
+            padding: 20px;
+            background-color: var(--content-bg-color);
+            display: none; /* Oculta todo el contenido por defecto */
+            color: white; /* Cambiado a blanco */
+            position: relative;
+        }
+        footer {
+            background-color: var(--header-bg-color);
+            color: var(--text-color);
+            text-align: center;
+            padding: 10px;
+        }
+        #logo {
+            width: auto;
+            height: 100px;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+        h1 {
+            font-family: var(--font-family);
+            font-size: 36px;
+        }
+        h2 {
+            font-family: var(--font-family);
+            text-shadow: none;
+        }
+        h3 {
+            margin-top: 20px;
+        }
+        /* Estilo para el contenido activo */
+        .content.active {
+            display: block;
+        }
+        /* Estilo para el botón de "Hacer una pregunta" */
+        .ask-question-button {
+            background-color: var(--nav-bg-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        /* Estilo para el cuadro de texto y el botón de enviar pregunta */
+        .question-input {
+            display: none;
+        }
+        .send-question-button {
+            background-color: var(--nav-bg-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        /* Estilo para la imagen de fondo con transparencia */
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('fondo.png');
+            background-size: cover;
+            opacity: 0.5;
+            z-index: -1;
+        }
+        /* Estilo para las imágenes debajo del texto */
+        .content img {
+            display: block;
+            margin: 20px auto;
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img id="logo" src="logo.png" alt="Logo de Cocina y Comunidad" height="100">
+        <h1>Restaurante Cocina y Comunidad</h1>
+    </header>
+    <div class="menu-rectangle">
+        <div class="menu-container">
+            <a href="#faq" onclick="showContent('faq')">Preguntas Frecuentes</a>
+            <a href="#contact" onclick="showContent('contact')">Contáctanos</a>
+            <a href="#about" onclick="showContent('about')">Quiénes Somos</a>
+            <a href="#locations" onclick="showContent('locations')">Sucursales</a>
+            <a href="#blog" onclick="showContent('blog')">Blog</a>
+        </div>
+    </div>
+    <div class="content" id="faq">
+        <h2>Preguntas Frecuentes</h2>
+        <!-- Contenido de Preguntas Frecuentes -->
+        <h3>Comenta tu experiencia con nosotros</h3>
+        <p>¿Dónde oíste hablar de nosotros?</p>
+        <p>¿Te gustó tu experiencia y volverías?</p>
+        <p>¿Cómo valorarías nuestro menú?</p>
+        <p>¿Cómo calificarías el concepto del restaurante con relación al menú y el equipo de trabajo?</p>
+        <p>¿Recomendarías el restaurante?</p>
+        <p>¿Te gustaría saber cuál será la próxima cultura y equipo encargado de elaborar el menú?</p>
+        <p>Si hubo algún inconveniente, ¿el servicio supo solucionarlo?</p>
+        <!-- Botón para hacer una pregunta -->
+        <button class="ask-question-button" onclick="showQuestionInput()">Haznos una pregunta</button>
+        <!-- Cuadro de texto y botón de enviar pregunta (inicialmente ocultos) -->
+        <div class="question-input" id="question-input">
+            <input type="text" placeholder="Escribe tu pregunta...">
+            <button class="send-question-button" onclick="clearQuestionInput()">Enviar pregunta</button>
+        </div>
+        <!-- Imagen de fondo con transparencia -->
+        <div class="background-image"></div>
+    </div>
+    <div class="content" id="contact">
+        <h2>Contáctanos</h2>
+        <!-- Contenido de Contáctanos -->
+        <p>Puedes comunicarte con nosotros a través de <a href="mailto:info@cocinaycomunidad.com">info@cocinaycomunidad.com</a>.</p>
+    </div>
+    <div class="content" id="about">
+        <h2>Quiénes Somos</h2>
+        <!-- Contenido de Quiénes Somos -->
+        <p>En Cocina y Comunidad nos preocupamos por ser un negocio inclusivo para aquellas personas que se encuentren en la pirámide (BoP) brindándoles una oportunidad de empleo y así puedan mejorar su calidad de vida, satisfaciendo dichas necesidades a través de su profesión como cocineros(as).</p>
+        <p>Recibimos a cocineros(as) de distintos lugares de la república mexicana para exponer los platillos de sus regiones y culturas, fomentando el crecimiento de la economía con oportunidades laborales.</p>
+        <h3>Nuestra Misión</h3>
+        <p>Comprometidos en satisfacer las necesidades gastronómicas de nuestros clientes, preparando alimentos de alta calidad con una atención personalizada, brindando oportunidades de empleo para disminuir la pobreza extrema en distintas partes de la república mexicana.</p>
+        <p>Objetivos:</p>
+        <ul>
+            <li>Crear nuevos empleos</li>
+            <li>Sumarnos a la economía local y apoyar a las personas sin empleo</li>
+            <li>Ayudar al crecimiento del turismo y la gastronomía</li>
+        </ul>
+        <!-- Imagen debajo del texto -->
+        <img src="1.png" alt="Imagen 1" width="200">
+    </div>
+    <div class="content" id="locations">
+        <h2>Sucursales</h2>
+        <!-- Contenido de Sucursales -->
+        <p>Interlomas</p>
+        <p>Paseo Interlomas, Vialidad de la Barranca 6, Col. Ex Hacienda Jesús del Monte, Jesus del Monte, 52772 Huixquilucan de Degollado, Méx.</p>
+        <p>CDMX</p>
+        <p>Calz Sta Catarina 207, San Ángel Inn, Álvaro Obregón, 01060 Ciudad de México, CDMX</p>
+        <p>Guadalajara</p>
+        <p>C. Miguel Lerdo de Tejada 2418, Lafayette, 44150 Guadalajara, Jal.</p>
+        <p>Mérida</p>
+        <p>C. 57 x 62, Parque Santa Lucia, Centro, 97000 Mérida, Yuc.</p>
+        <!-- Imagen debajo del texto -->
+        <img src="2.png" alt="Imagen 2" width="200">
+    </div>
+    <div class="content" id="blog">
+        <h2>BLOG</h2>
+        <p><strong>Colonias rurales...</strong></p>
+        <!-- Imagen debajo de "Colonias rurales" -->
+        <img src="3.png" alt="Imagen 3" width="200">
+        <p>¿Sabías que las colonias rurales sufren mucho por falta de empleos y malos tratos debido a la discriminación?</p>
+        <p>"Discriminar" a una persona significa tratarla de manera diferente, o menos favorable.</p>
+        <p>Gracias a la raza, color, religión, etc. Se niegan trabajos o bien al momento de conseguir sufren tratos injustos, hostigamientos represalias, entre otras injusticias.</p>
+        <p>Es por ello que nuestra empresa busca la manera de generar nuevos empleos beneficiando a personas necesitadas.</p>
+        <p><strong>Gastronomía mexicana...</strong></p>
+        <!-- Imagen debajo de "Gastronomía mexicana" -->
+        <img src="4.png" alt="Imagen 4" width="200">
+        <p>Cuando se habla de gastronomía mexicana no puedes evitar saborearte la boca, atrévete a probar un poco más de ella con nosotros.</p>
+        <p>La cocina mexicana es un conjunto de platos y técnicas culinarias mexicanas que forman parte de las tradiciones y la vida común de los habitantes del país, enriquecidas con los aportes de diferentes regiones del país, basadas en la experiencia mexicana prehispánica con la cocina europea, entre otros.</p>
+        <p>Nuestro restaurante brinda una gran variedad de deliciosos platillos hechos por manos sumamente expertas en la gastronomía mexicana.</p>
+        <h3>5 Beneficios</h3>
+        <!-- Imagen debajo de "5 Beneficios" -->
+        <img src="5.png" alt="Imagen 5" width="200">
+        <p>5 beneficios de la gastronomía mexicana.</p>
+        <p>¡Olvida el remordimiento de comer tacos, mole, pozole y más!</p>
+        <p>Razones por las cuales comer comida mexicana además de que es deliciosa.</p>
+        <ul>
+            <li>Integra todos los alimentos que se encuentran en el plato del buen comer.</li>
+            <li>Es una gran fuente de energía.</li>
+            <li>Fortalece tu sistema inmunológico.</li>
+            <li>Te permite tener una buena digestión.</li>
+            <li>Se adapta a cualquier tipo de dieta.</li>
+        </ul>
+    </div>
+    <footer>
+        <p>Síguenos en nuestras redes sociales:</p>
+        <a href="#">Facebook</a> |
+        <a href="#">Twitter</a> |
+        <a href="#">Instagram</a>
+    </footer>
+    <script>
+        // Función para mostrar el contenido correspondiente al hacer clic en los enlaces del menú
+        function showContent(contentId) {
+            // Ocultar todos los contenidos
+            const contents = document.querySelectorAll('.content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Mostrar el contenido seleccionado
+            const selectedContent = document.getElementById(contentId);
+            selectedContent.classList.add('active');
+        }
+
+        // Función para mostrar el cuadro de texto y el botón de enviar pregunta
+        function showQuestionInput() {
+            const questionInput = document.querySelector('.question-input');
+            questionInput.style.display = 'block';
+        }
+
+        // Función para borrar el texto del cuadro de texto de pregunta
+        function clearQuestionInput() {
+            const questionInput = document.querySelector('.question-input input');
+            questionInput.value = '';
+            questionInput.focus();
+        }
+
+        // Mostrar el contenido de "Quiénes Somos" por defecto al cargar la página
+        showContent('about');
+    </script>
+</body>
+</html>
