@@ -78,27 +78,29 @@
     }
 });
     function addCards(num, code) {
-        for (let i = 0; i < num; i++) {
-            const card = document.createElement('img');
-            const imageUrl = `https://images.digimoncard.io/images/cards/${code}.jpg`;
-            const img = new Image();
-            img.src = imageUrl;
-            img.onload = function() {
-                card.src = imageUrl;
-                centerCard(card);
-            };
-            img.onerror = function() {
-                card.src = defaultImageUrl;
-                centerCard(card);
-            };
-            card.className = 'card';
-            card.style.width = (window.innerWidth / 10) + 'px';
-            card.style.height = 'auto';
-            container.appendChild(card);
-            makeDraggable(card);
-        }
-        popup.style.display = 'none';
+    for (let i = 0; i < num; i++) {
+        const card = document.createElement('img');
+        const imageUrl = `https://images.digimoncard.io/images/cards/${code}.jpg`;
+        const img = new Image();
+        img.src = imageUrl;
+        img.onload = function() {
+            card.src = imageUrl;
+            card.dataset.originalImageUrl = imageUrl; // Store the original image URL
+            centerCard(card);
+        };
+        img.onerror = function() {
+            card.src = defaultImageUrl;
+            card.dataset.originalImageUrl = defaultImageUrl; // Store the default image URL
+            centerCard(card);
+        };
+        card.className = 'card';
+        card.style.width = (window.innerWidth / 10) + 'px';
+        card.style.height = 'auto';
+        container.appendChild(card);
+        makeDraggable(card);
     }
+    popup.style.display = 'none';
+}
     function centerCard(card) {
         const containerWidth = container.offsetWidth;
         const containerHeight = container.offsetHeight;
@@ -128,55 +130,100 @@
         card.style.left = newX + 'px';
         card.style.top = newY + 'px';
     }
+	function checkCardRegion(card) {
+    const container = document.getElementById('drag-container');
+    const containerWidth = container.offsetWidth;
+    const containerHeight = container.offsetHeight;
+    const cardRect = card.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const cardLeft = cardRect.left - containerRect.left;
+    const cardTop = cardRect.top - containerRect.top;
+    const cardRight = cardLeft + card.offsetWidth;
+    const cardBottom = cardTop + card.offsetHeight;
+    const regionA = {
+        left: 0,
+        right: containerWidth * 0.12,
+        top: containerHeight * 0.3,
+        bottom: containerHeight * 0.45
+    };
+    const regionB = {
+        left: containerWidth * 0.92,
+        right: containerWidth * 1,
+        top: containerHeight * 0.25,
+        bottom: containerHeight * 0.27
+    };
+    const regionC = {
+        left: containerWidth * 0.13,
+        right: containerWidth * 0.11,
+        top: containerHeight * 0.87,
+        bottom: containerHeight * 1
+    };
+    const inRegionA = cardRight > regionA.left && cardLeft < regionA.right &&
+                      cardBottom > regionA.top && cardTop < regionA.bottom;
+    const inRegionB = cardRight > regionB.left && cardLeft < regionB.right &&
+                      cardBottom > regionB.top && cardTop < regionB.bottom;
+    const inRegionC = cardRight > regionC.left && cardLeft < regionC.right &&
+                      cardBottom > regionC.top && cardTop < regionC.bottom;
+
+    if (inRegionA || inRegionB || inRegionC) {
+        card.src = defaultImageUrl;
+    } else {
+        card.src = card.dataset.originalImageUrl || defaultImageUrl;
+    }
+}
     let highestZIndex = 1;
     function makeDraggable(element) {
-        let isMoving = false;
-        let startX, startY, initialX, initialY;
-        element.addEventListener('mousedown', (e) => {
-            isMoving = true;
-            startX = e.clientX;
-            startY = e.clientY;
-            initialX = element.offsetLeft;
-            initialY = element.offsetTop;
-            highestZIndex++;
-            element.style.zIndex = highestZIndex;
-            document.addEventListener('mousemove', moveElement);
-            document.addEventListener('mouseup', stopMove);
-        });
+    let isMoving = false;
+    let startX, startY, initialX, initialY;
+    element.addEventListener('mousedown', (e) => {
+        isMoving = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        initialX = element.offsetLeft;
+        initialY = element.offsetTop;
+        highestZIndex++;
+        element.style.zIndex = highestZIndex;
+        document.addEventListener('mousemove', moveElement);
+        document.addEventListener('mouseup', stopMove);
+    });
         function moveElement(e) {
-            if (isMoving) {
-                const dx = e.clientX - startX;
-                const dy = e.clientY - startY;
-                const newX = initialX + dx;
-                const newY = initialY + dy;
-                const minY = 0;
-                const maxX = container.offsetWidth - element.offsetWidth;
-                const maxY = container.offsetHeight - element.offsetHeight;
-                if (newX >= 0 && newX <= maxX && newY >= minY && newY <= maxY) {
-                    element.style.left = newX + 'px';
-                    element.style.top = newY + 'px';
-                    const visualLeftRatio = newX / container.offsetWidth;
-                    const visualTopRatio = newY / container.offsetHeight;
-                    element.dataset.visualLeftRatio = visualLeftRatio;
-                    element.dataset.visualTopRatio = visualTopRatio;
-                }
+        if (isMoving) {
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            const newX = initialX + dx;
+            const newY = initialY + dy;
+            const minY = 0;
+            const maxX = container.offsetWidth - element.offsetWidth;
+            const maxY = container.offsetHeight - element.offsetHeight;
+            if (newX >= 0 && newX <= maxX && newY >= minY && newY <= maxY) {
+                element.style.left = newX + 'px';
+                element.style.top = newY + 'px';
+                const visualLeftRatio = newX / container.offsetWidth;
+                const visualTopRatio = newY / container.offsetHeight;
+                element.dataset.visualLeftRatio = visualLeftRatio;
+                element.dataset.visualTopRatio = visualTopRatio;
+                
+                // Check card's region and update image accordingly
+                checkCardRegion(element);
             }
         }
-        function stopMove() {
-            isMoving = false;
-            document.removeEventListener('mousemove', moveElement);
-            document.removeEventListener('mouseup', stopMove);
+    }
+    function stopMove() {
+        isMoving = false;
+        document.removeEventListener('mousemove', moveElement);
+        document.removeEventListener('mouseup', stopMove);
+    }
+    element.addEventListener('dblclick', () => {
+        let rotation = parseInt(element.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
+        if (rotation % 360 === 0) {
+            rotation -= 90;
+        } else {
+            rotation += 90;
         }
-        element.addEventListener('dblclick', () => {
-            let rotation = parseInt(element.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
-            if (rotation % 360 === 0) {
-                rotation -= 90;
-            } else {
-                rotation += 90;
-            }
-            rotation = (rotation - 360) % 360;
-            element.style.transform = `rotate(${rotation}deg)`;
-        });
+        rotation = (rotation - 360) % 360;
+        element.style.transform = `rotate(${rotation}deg)`;
+    });
+	 element.dataset.originalImageUrl = element.src;
     }
     function addDice() {
         const dice = document.createElement('img');
@@ -281,6 +328,5 @@
         addDice(); 
     });
 </script>
-
 </body>
 </html>
