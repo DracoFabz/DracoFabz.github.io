@@ -1,263 +1,220 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Restaurante Comunidad y Cocina</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Shrikhand&display=swap">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck Tester</title>
     <style>
-        /* Paleta de colores */
-        :root {
-            --main-bg-color: #6a3a12; /* Cambiado a #6a3a12 */
-            --header-bg-color: #59a87d; /* Cambiado a color2 */
-            --nav-bg-color: #16453f; /* Cambiado a color3 */
-            --text-color: #091c1a; /* Cambiado a color4 */
-            --font-family: 'Shrikhand', cursive; /* Fuente Shrikhand */
-            --content-bg-color: #000000; /* Cambiado a negro */
-        }
-
-        /* Estilos CSS */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--main-bg-color);
-        }
-        header {
-            background-color: var(--header-bg-color);
-            color: var(--text-color);
-            text-align: center;
-            padding: 10px;
-            position: relative;
-        }
-        .menu-rectangle {
-            background-color: var(--nav-bg-color);
-            width: 50vw; /* El 50% del ancho de la ventana */
-            height: 60px; /* Altura del rectángulo de navegación */
-            margin-left: auto; /* Pegado a la derecha */
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top-left-radius: 30px; /* Esquinas izquierdas redondeadas */
-            border-bottom-left-radius: 30px; /* Esquinas izquierdas redondeadas */
-        }
-        .menu-container {
-            background-color: transparent; /* Fondo transparente para los botones */
-        }
-        .menu-container a {
-            color: white; /* Letras en blanco */
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 18px;
-            padding: 10px 20px; /* Espacio interno en los enlaces */
-        }
-        .content {
-            padding: 20px;
-            background-color: var(--content-bg-color);
-            display: none; /* Oculta todo el contenido por defecto */
-            color: white; /* Cambiado a blanco */
-            position: relative;
-        }
-        footer {
-            background-color: var(--header-bg-color);
-            color: var(--text-color);
-            text-align: center;
-            padding: 10px;
-        }
-        #logo {
-            width: auto;
-            height: 100px;
-            position: absolute;
-            top: 10px;
-            left: 10px;
-        }
-        h1 {
-            font-family: var(--font-family);
-            font-size: 36px;
-        }
-        h2 {
-            font-family: var(--font-family);
-            text-shadow: none;
-        }
-        h3 {
-            margin-top: 20px;
-        }
-        /* Estilo para el contenido activo */
-        .content.active {
-            display: block;
-        }
-        /* Estilo para el botón de "Hacer una pregunta" */
-        .ask-question-button {
-            background-color: var(--nav-bg-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-        /* Estilo para el cuadro de texto y el botón de enviar pregunta */
-        .question-input {
-            display: none;
-        }
-        .send-question-button {
-            background-color: var(--nav-bg-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-        /* Estilo para la imagen de fondo con transparencia */
-        .background-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('fondo.png');
-            background-size: cover;
-            opacity: 0.5;
-            z-index: -1;
-        }
-        /* Estilo para las imágenes debajo del texto */
-        .content img {
-            display: block;
-            margin: 20px auto;
-            max-width: 100%;
-        }
+        body {margin: 0; font-family: Arial, sans-serif; background-color: #f0f0f0; overflow: hidden;}
+        #banner {background-color: #3466af; color: #dedede; text-align: left; padding: 1.5% 1.5%; font-size: 2.5vw; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;  position: fixed; width: 100%; top: 0; left: 0; z-index: 1; box-sizing: border-box;}
+        #buttons-banner {background-color: #ffffff; text-align: left; padding: 1% 2%; position: fixed; width: 100%; top: calc(2% + 1.5% + 1em); left: 0; z-index: 1; box-sizing: border-box;}
+        .button {background-color: #3466af; color: #dedede; border: none; border-radius: 20px; cursor: pointer; transition: background-color 0.3s; font-size: 0.7vw; display: inline-block; margin: 0 5px; box-sizing: border-box;}
+        .button:hover, .button:active {background-color: #4976b7;}
+        #drag-container {position: fixed; top: calc(2% + 1.5% + 1em + 3 * (3vw)); left: 5px; right: 5px; bottom: 5px; background: url('https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Layout.png') no-repeat top left; background-size: cover; overflow: hidden; z-index: 0;}
+        .card {position: absolute; cursor: pointer; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 2; transition: transform 0.3s;}
+        #popup {display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #ffffff; border: 2px solid grey; padding: 20px; border-radius: 20px; width: 300px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); z-index: 3;}
+        #popup h2 {margin-top: 0;}
+        #text-input {width: 100%; height: 100px; border: 1px solid grey; border-radius: 10px; margin: 10px 0; padding: 10px; resize: none;}
+        #popup-buttons {text-align: center;}
     </style>
 </head>
 <body>
-    <header>
-        <img id="logo" src="logo.png" alt="Logo de Cocina y Comunidad" height="100">
-        <h1>Restaurante Comunidad y Cocina</h1>
-    </header>
-    <div class="menu-rectangle">
-        <div class="menu-container">
-            <a href="#faq" onclick="showContent('faq')">Preguntas Frecuentes</a>
-            <a href="#contact" onclick="showContent('contact')">Contáctanos</a>
-            <a href="#about" onclick="showContent('about')">Quiénes Somos</a>
-            <a href="#locations" onclick="showContent('locations')">Sucursales</a>
-            <a href="#blog" onclick="showContent('blog')">Blog</a>
+    <div id="banner">Deck Tester</div>
+    <div id="buttons-banner">
+        <button class="button" id="donate-button">Donate</button>
+        <button class="button" id="import-button">Import Deck</button>
+        <button class="button" id="clear-deck-button">Clear Deck</button>
+    </div>
+    <div id="drag-container">
+    </div>
+    <div id="popup">
+        <h2>Importing Deck</h2>
+        <p>Paste here the codes from Digimon.io</p>
+        <textarea id="text-input"></textarea>
+        <div id="popup-buttons">
+            <button class="button" id="load-code-button">Load Code</button>
+            <button class="button" id="go-back-button">Go Back</button>
         </div>
     </div>
-    <div class="content" id="faq">
-        <h2>Preguntas Frecuentes</h2>
-        <!-- Contenido de Preguntas Frecuentes -->
-        <h3>Comenta tu experiencia con nosotros</h3>
-        <p>¿Dónde oíste hablar de nosotros?</p>
-        <p>¿Te gustó tu experiencia y volverías?</p>
-        <p>¿Cómo valorarías nuestro menú?</p>
-        <p>¿Cómo calificarías el concepto del restaurante con relación al menú y el equipo de trabajo?</p>
-        <p>¿Recomendarías el restaurante?</p>
-        <p>¿Te gustaría saber cuál será la próxima cultura y equipo encargado de elaborar el menú?</p>
-        <p>Si hubo algún inconveniente, ¿el servicio supo solucionarlo?</p>
-        <!-- Botón para hacer una pregunta -->
-        <button class="ask-question-button" onclick="showQuestionInput()">Haznos una pregunta</button>
-        <!-- Cuadro de texto y botón de enviar pregunta (inicialmente ocultos) -->
-        <div class="question-input" id="question-input">
-            <input type="text" placeholder="Escribe tu pregunta...">
-            <button class="send-question-button" onclick="clearQuestionInput()">Enviar pregunta</button>
-        </div>
-        <!-- Imagen de fondo con transparencia -->
-        <div class="background-image"></div>
-    </div>
-    <div class="content" id="contact">
-        <h2>Contáctanos</h2>
-        <!-- Contenido de Contáctanos -->
-        <p>Puedes comunicarte con nosotros a través de <a href="mailto:info@cocinaycomunidad.com">info@cocinaycomunidad.com</a>.</p>
-    </div>
-    <div class="content" id="about">
-        <h2>Quiénes Somos</h2>
-        <!-- Contenido de Quiénes Somos -->
-        <p>En Comunidad y Cocina nos preocupamos por ser un negocio inclusivo para aquellas personas que se encuentren en la pirámide (BoP) brindándoles una oportunidad de empleo y así puedan mejorar su calidad de vida, satisfaciendo dichas necesidades a través de su profesión como cocineros(as).</p>
-        <p>Recibimos a cocineros(as) de distintos lugares de la república mexicana para exponer los platillos de sus regiones y culturas, fomentando el crecimiento de la economía con oportunidades laborales.</p>
-        <h3>Nuestra Misión</h3>
-        <p>Comprometidos en satisfacer las necesidades gastronómicas de nuestros clientes, preparando alimentos de alta calidad con una atención personalizada, brindando oportunidades de empleo para disminuir la pobreza extrema en distintas partes de la república mexicana.</p>
-        <p>Objetivos:</p>
-        <ul>
-            <li>Crear nuevos empleos</li>
-            <li>Sumarnos a la economía local y apoyar a las personas sin empleo</li>
-            <li>Ayudar al crecimiento del turismo y la gastronomía</li>
-        </ul>
-        <!-- Imagen debajo del texto -->
-        <img src="1.png" alt="Imagen 1" width="200">
-    </div>
-    <div class="content" id="locations">
-        <h2>Sucursales</h2>
-        <!-- Contenido de Sucursales -->
-        <p>Interlomas</p>
-        <p>Paseo Interlomas, Vialidad de la Barranca 6, Col. Ex Hacienda Jesús del Monte, Jesus del Monte, 52772 Huixquilucan de Degollado, Méx.</p>
-        <p>CDMX</p>
-        <p>Calz Sta Catarina 207, San Ángel Inn, Álvaro Obregón, 01060 Ciudad de México, CDMX</p>
-        <p>Guadalajara</p>
-        <p>C. Miguel Lerdo de Tejada 2418, Lafayette, 44150 Guadalajara, Jal.</p>
-        <p>Mérida</p>
-        <p>C. 57 x 62, Parque Santa Lucia, Centro, 97000 Mérida, Yuc.</p>
-        <!-- Imagen debajo del texto -->
-        <img src="2.png" alt="Imagen 2" width="200">
-    </div>
-    <div class="content" id="blog">
-        <h2>BLOG</h2>
-        <p><strong>Colonias rurales...</strong></p>
-        <!-- Imagen debajo de "Colonias rurales" -->
-        <img src="3.png" alt="Imagen 3" width="200">
-        <p>¿Sabías que las colonias rurales sufren mucho por falta de empleos y malos tratos debido a la discriminación?</p>
-        <p>"Discriminar" a una persona significa tratarla de manera diferente, o menos favorable.</p>
-        <p>Gracias a la raza, color, religión, etc. Se niegan trabajos o bien al momento de conseguir sufren tratos injustos, hostigamientos represalias, entre otras injusticias.</p>
-        <p>Es por ello que nuestra empresa busca la manera de generar nuevos empleos beneficiando a personas necesitadas.</p>
-        <p><strong>Gastronomía mexicana...</strong></p>
-        <!-- Imagen debajo de "Gastronomía mexicana" -->
-        <img src="4.png" alt="Imagen 4" width="200">
-        <p>Cuando se habla de gastronomía mexicana no puedes evitar saborearte la boca, atrévete a probar un poco más de ella con nosotros.</p>
-        <p>La cocina mexicana es un conjunto de platos y técnicas culinarias mexicanas que forman parte de las tradiciones y la vida común de los habitantes del país, enriquecidas con los aportes de diferentes regiones del país, basadas en la experiencia mexicana prehispánica con la cocina europea, entre otros.</p>
-        <p>Nuestro restaurante brinda una gran variedad de deliciosos platillos hechos por manos sumamente expertas en la gastronomía mexicana.</p>
-        <h3>5 Beneficios</h3>
-        <!-- Imagen debajo de "5 Beneficios" -->
-        <img src="5.png" alt="Imagen 5" width="200">
-        <p>5 beneficios de la gastronomía mexicana.</p>
-        <p>¡Olvida el remordimiento de comer tacos, mole, pozole y más!</p>
-        <p>Razones por las cuales comer comida mexicana además de que es deliciosa.</p>
-        <ul>
-            <li>Integra todos los alimentos que se encuentran en el plato del buen comer.</li>
-            <li>Es una gran fuente de energía.</li>
-            <li>Fortalece tu sistema inmunológico.</li>
-            <li>Te permite tener una buena digestión.</li>
-            <li>Se adapta a cualquier tipo de dieta.</li>
-        </ul>
-    </div>
-    <footer>
-        <p>Síguenos en nuestras redes sociales:</p>
-        <a href="#">Facebook</a> |
-        <a href="#">Twitter</a> |
-        <a href="#">Instagram</a>
-    </footer>
-    <script>
-        // Función para mostrar el contenido correspondiente al hacer clic en los enlaces del menú
-        function showContent(contentId) {
-            // Ocultar todos los contenidos
-            const contents = document.querySelectorAll('.content');
-            contents.forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // Mostrar el contenido seleccionado
-            const selectedContent = document.getElementById(contentId);
-            selectedContent.classList.add('active');
+<script>
+    const donateButton = document.getElementById('donate-button');
+    const importButton = document.getElementById('import-button');
+    const popup = document.getElementById('popup');
+    const goBackButton = document.getElementById('go-back-button');
+    const loadCodeButton = document.getElementById('load-code-button');
+    const clearDeckButton = document.getElementById('clear-deck-button');
+    const container = document.getElementById('drag-container');
+    const defaultImageUrl = 'https://images.digimoncard.io/images/assets/CardBack.jpg';
+    donateButton.addEventListener('click', () => {
+        alert('Thanks for donation');
+    });
+    importButton.addEventListener('click', () => {
+        popup.style.display = 'block';
+    });
+    goBackButton.addEventListener('click', () => {
+        popup.style.display = 'none';
+    });
+    loadCodeButton.addEventListener('click', () => {
+        const input = document.getElementById('text-input').value.trim();
+        const lines = input.split('\n');
+        lines.forEach(line => {
+            const [count, code] = line.trim().split(' ');
+            const numCards = parseInt(count);
+            const cardCode = code.toUpperCase().trim();
+            if (!isNaN(numCards) && cardCode) {
+                addCards(numCards, cardCode);
+            }
+        });
+        popup.style.display = 'none';
+    });
+    clearDeckButton.addEventListener('click', () => {
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
         }
-
-        // Función para mostrar el cuadro de texto y el botón de enviar pregunta
-        function showQuestionInput() {
-            const questionInput = document.querySelector('.question-input');
-            questionInput.style.display = 'block';
+    });
+    function addCards(num, code) {
+        for (let i = 0; i < num; i++) {
+            const card = document.createElement('img');
+            const imageUrl = `https://images.digimoncard.io/images/cards/${code}.jpg`;
+            const img = new Image();
+            img.src = imageUrl;
+            img.onload = function() {
+                card.src = imageUrl;
+                centerCard(card);};
+            img.onerror = function() {
+                card.src = defaultImageUrl;
+                centerCard(card);};
+            card.className = 'card';
+            card.style.width = (window.innerWidth / 10) + 'px';
+            card.style.height = 'auto';
+            container.appendChild(card);
+            makeDraggable(card);
         }
-
-        // Función para borrar el texto del cuadro de texto de pregunta
-        function clearQuestionInput() {
-            const questionInput = document.querySelector('.question-input input');
-            questionInput.value = '';
-            questionInput.focus();
+        popup.style.display = 'none';
+    }
+    function centerCard(card) {
+        const containerWidth = container.offsetWidth;
+        const containerHeight = container.offsetHeight;
+        const cardWidth = card.offsetWidth;
+        const cardHeight = card.offsetHeight;
+        const defaultCenterXRatio = 0.875;
+        const defaultCenterYRatio = 0.14;
+        const defaultCenterX = containerWidth * defaultCenterXRatio;
+        const defaultCenterY = containerHeight * defaultCenterYRatio;
+        card.dataset.defaultCenterXRatio = defaultCenterXRatio;
+        card.dataset.defaultCenterYRatio = defaultCenterYRatio;
+        card.dataset.visualLeftRatio = defaultCenterXRatio;
+        card.dataset.visualTopRatio = defaultCenterYRatio;
+        updateCardPosition(card);
+    }
+    function updateCardPosition(card) {
+        const containerWidth = container.offsetWidth;
+        const containerHeight = container.offsetHeight;
+        const defaultCenterXRatio = parseFloat(card.dataset.defaultCenterXRatio);
+        const defaultCenterYRatio = parseFloat(card.dataset.defaultCenterYRatio);
+        const visualLeftRatio = parseFloat(card.dataset.visualLeftRatio);
+        const visualTopRatio = parseFloat(card.dataset.visualTopRatio);
+        const cardWidth = card.offsetWidth;
+        const cardHeight = card.offsetHeight;
+        const newX = visualLeftRatio * containerWidth - defaultCenterXRatio;
+        const newY = visualTopRatio * containerHeight - defaultCenterYRatio;
+        card.style.left = newX + 'px';
+        card.style.top = newY + 'px';
+    }
+    let highestZIndex = 1;
+	function makeDraggable(card) {
+    let isMoving = false;
+    let startX, startY, initialX, initialY;
+    card.addEventListener('mousedown', (e) => {
+        isMoving = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        initialX = card.offsetLeft;
+        initialY = card.offsetTop;
+        highestZIndex++;
+        card.style.zIndex = highestZIndex;
+        document.addEventListener('mousemove', moveCard);
+        document.addEventListener('mouseup', stopMove);
+    });
+    function moveCard(e) {
+        if (isMoving) {
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            const newX = initialX + dx;
+            const newY = initialY + dy;
+            const minY = 0;
+            const maxX = container.offsetWidth - card.offsetWidth;
+            const maxY = container.offsetHeight - card.offsetHeight;
+            if (newX >= 0 && newX <= maxX && newY >= minY && newY <= maxY) {
+                card.style.left = newX + 'px';
+                card.style.top = newY + 'px';
+                const visualLeftRatio = newX / container.offsetWidth;
+                const visualTopRatio = newY / container.offsetHeight;
+                card.dataset.visualLeftRatio = visualLeftRatio;
+                card.dataset.visualTopRatio = visualTopRatio;
+            }
         }
-
-        // Mostrar el contenido de "Quiénes Somos" por defecto al cargar la página
-        showContent('about');
-    </script>
+    }
+    function stopMove() {
+        isMoving = false;
+        document.removeEventListener('mousemove', moveCard);
+        document.removeEventListener('mouseup', stopMove);
+    }
+    card.addEventListener('dblclick', () => {
+        let rotation = parseInt(card.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
+        if (rotation % 360 === 0) {
+            rotation -= 90;
+        } else {
+            rotation += 90;
+        }
+        rotation = (rotation - 360) % 360;
+        card.style.transform = `rotate(${rotation}deg)`;
+    });
+    }
+    function adjustCardSize() {
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.style.width = (window.innerWidth / 10) + 'px';
+            updateCardPosition(card);
+        });
+    }
+    function adjustContainerSize() {
+        const backgroundImg = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Layout.png';
+        const img = new Image();
+        img.src = backgroundImg;
+        img.onload = function() {
+            const imgWidth = img.width;
+            const imgHeight = img.height;
+            container.style.width = `calc(100% - 10px)`;
+            container.style.height = `calc((100vw / ${imgWidth}) * ${imgHeight})`;
+            Array.from(container.getElementsByClassName('card')).forEach(updateCardPosition);
+        };
+    }
+    function adjustButtonBanner() {
+        const banner = document.getElementById('banner');
+        const buttonsBanner = document.getElementById('buttons-banner');
+        const bannerHeight = banner.offsetHeight;
+        const buttons = document.querySelectorAll('.button');
+        buttonsBanner.style.top = `${bannerHeight + 10}px`;
+        buttonsBanner.style.height = `${bannerHeight}px`;
+        buttons.forEach(button => {
+            button.style.height = `${0.7 * bannerHeight}px`;
+            button.style.lineHeight = `${0.7 * bannerHeight}px`;
+            button.style.fontSize = `${0.35 * bannerHeight}px`;
+        });
+    }
+    window.addEventListener('resize', () => {
+        requestAnimationFrame(() => {
+            adjustCardSize();
+            adjustContainerSize();
+            adjustButtonBanner();
+        });
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+        adjustCardSize();
+        adjustContainerSize();
+        adjustButtonBanner();
+    });
+</script>
 </body>
 </html>
