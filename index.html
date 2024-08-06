@@ -45,6 +45,7 @@
     const clearDeckButton = document.getElementById('clear-deck-button');
     const container = document.getElementById('drag-container');
     const defaultImageUrl = 'https://images.digimoncard.io/images/assets/CardBack.jpg';
+    const diceUrl = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png';
     donateButton.addEventListener('click', () => {
         alert('Thanks for donation');
     });
@@ -68,10 +69,14 @@
         popup.style.display = 'none';
     });
     clearDeckButton.addEventListener('click', () => {
-        while (container.firstChild) {
-            container.removeChild(container.firstChild);
+    const elements = container.children;
+    for (let i = elements.length - 1; i >= 0; i--) {
+        const element = elements[i];
+        if (!element.src.includes(diceUrl)) { 
+            container.removeChild(element);
         }
-    });
+    }
+});
     function addCards(num, code) {
         for (let i = 0; i < num; i++) {
             const card = document.createElement('img');
@@ -80,10 +85,12 @@
             img.src = imageUrl;
             img.onload = function() {
                 card.src = imageUrl;
-                centerCard(card);};
+                centerCard(card);
+            };
             img.onerror = function() {
                 card.src = defaultImageUrl;
-                centerCard(card);};
+                centerCard(card);
+            };
             card.className = 'card';
             card.style.width = (window.innerWidth / 10) + 'px';
             card.style.height = 'auto';
@@ -122,60 +129,109 @@
         card.style.top = newY + 'px';
     }
     let highestZIndex = 1;
-	function makeDraggable(card) {
-    let isMoving = false;
-    let startX, startY, initialX, initialY;
-    card.addEventListener('mousedown', (e) => {
-        isMoving = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        initialX = card.offsetLeft;
-        initialY = card.offsetTop;
-        highestZIndex++;
-        card.style.zIndex = highestZIndex;
-        document.addEventListener('mousemove', moveCard);
-        document.addEventListener('mouseup', stopMove);
-    });
-    function moveCard(e) {
-        if (isMoving) {
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
-            const newX = initialX + dx;
-            const newY = initialY + dy;
-            const minY = 0;
-            const maxX = container.offsetWidth - card.offsetWidth;
-            const maxY = container.offsetHeight - card.offsetHeight;
-            if (newX >= 0 && newX <= maxX && newY >= minY && newY <= maxY) {
-                card.style.left = newX + 'px';
-                card.style.top = newY + 'px';
-                const visualLeftRatio = newX / container.offsetWidth;
-                const visualTopRatio = newY / container.offsetHeight;
-                card.dataset.visualLeftRatio = visualLeftRatio;
-                card.dataset.visualTopRatio = visualTopRatio;
+    function makeDraggable(element) {
+        let isMoving = false;
+        let startX, startY, initialX, initialY;
+        element.addEventListener('mousedown', (e) => {
+            isMoving = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            initialX = element.offsetLeft;
+            initialY = element.offsetTop;
+            highestZIndex++;
+            element.style.zIndex = highestZIndex;
+            document.addEventListener('mousemove', moveElement);
+            document.addEventListener('mouseup', stopMove);
+        });
+        function moveElement(e) {
+            if (isMoving) {
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                const newX = initialX + dx;
+                const newY = initialY + dy;
+                const minY = 0;
+                const maxX = container.offsetWidth - element.offsetWidth;
+                const maxY = container.offsetHeight - element.offsetHeight;
+                if (newX >= 0 && newX <= maxX && newY >= minY && newY <= maxY) {
+                    element.style.left = newX + 'px';
+                    element.style.top = newY + 'px';
+                    const visualLeftRatio = newX / container.offsetWidth;
+                    const visualTopRatio = newY / container.offsetHeight;
+                    element.dataset.visualLeftRatio = visualLeftRatio;
+                    element.dataset.visualTopRatio = visualTopRatio;
+                }
             }
         }
-    }
-    function stopMove() {
-        isMoving = false;
-        document.removeEventListener('mousemove', moveCard);
-        document.removeEventListener('mouseup', stopMove);
-    }
-    card.addEventListener('dblclick', () => {
-        let rotation = parseInt(card.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
-        if (rotation % 360 === 0) {
-            rotation -= 90;
-        } else {
-            rotation += 90;
+        function stopMove() {
+            isMoving = false;
+            document.removeEventListener('mousemove', moveElement);
+            document.removeEventListener('mouseup', stopMove);
         }
-        rotation = (rotation - 360) % 360;
-        card.style.transform = `rotate(${rotation}deg)`;
-    });
+        element.addEventListener('dblclick', () => {
+            let rotation = parseInt(element.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
+            if (rotation % 360 === 0) {
+                rotation -= 90;
+            } else {
+                rotation += 90;
+            }
+            rotation = (rotation - 360) % 360;
+            element.style.transform = `rotate(${rotation}deg)`;
+        });
+    }
+    function addDice() {
+        const dice = document.createElement('img');
+        dice.src = diceUrl;
+        dice.className = 'card';
+        dice.style.width = (window.innerWidth / 25) + 'px';
+        dice.style.height = 'auto';
+        dice.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+        container.appendChild(dice);
+        makeDraggable(dice);
+        centerDice(dice);
+    }
+    function centerDice(dice) {
+        const containerWidth = container.offsetWidth;
+        const containerHeight = container.offsetHeight;
+        const diceWidth = dice.offsetWidth;
+        const diceHeight = dice.offsetHeight;
+        const defaultCenterXRatio = 0.483;
+        const defaultCenterYRatio = 0.024;
+        dice.dataset.defaultCenterXRatio = defaultCenterXRatio;
+        dice.dataset.defaultCenterYRatio = defaultCenterYRatio;
+        dice.dataset.visualLeftRatio = defaultCenterXRatio;
+        dice.dataset.visualTopRatio = defaultCenterYRatio;
+        updateDicePosition(dice);
+    }
+    function updateDicePosition(dice) {
+        const containerWidth = container.offsetWidth;
+        const containerHeight = container.offsetHeight;
+        const defaultCenterXRatio = parseFloat(dice.dataset.defaultCenterXRatio);
+        const defaultCenterYRatio = parseFloat(dice.dataset.defaultCenterYRatio);
+        const visualLeftRatio = parseFloat(dice.dataset.visualLeftRatio);
+        const visualTopRatio = parseFloat(dice.dataset.visualTopRatio);
+        const diceWidth = dice.offsetWidth;
+        const diceHeight = dice.offsetHeight;
+        const newX = visualLeftRatio * containerWidth - defaultCenterXRatio;
+        const newY = visualTopRatio * containerHeight - defaultCenterYRatio;
+        dice.style.left = newX + 'px';
+        dice.style.top = newY + 'px';
     }
     function adjustCardSize() {
         const cards = document.querySelectorAll('.card');
         cards.forEach(card => {
-            card.style.width = (window.innerWidth / 10) + 'px';
-            updateCardPosition(card);
+            if (!card.src.includes(diceUrl)) { 
+                card.style.width = (window.innerWidth / 10) + 'px';
+                updateCardPosition(card);
+            }
+        });
+    }
+    function adjustDiceSize() {
+        const dice = document.querySelectorAll('.card'); 
+        dice.forEach(d => {
+            if (d.src.includes(diceUrl)) { 
+                d.style.width = (window.innerWidth / 25) + 'px';
+                updateDicePosition(d);
+            }
         });
     }
     function adjustContainerSize() {
@@ -187,7 +243,13 @@
             const imgHeight = img.height;
             container.style.width = `calc(100% - 10px)`;
             container.style.height = `calc((100vw / ${imgWidth}) * ${imgHeight})`;
-            Array.from(container.getElementsByClassName('card')).forEach(updateCardPosition);
+            Array.from(container.getElementsByClassName('card')).forEach(element => {
+                if (element.src.includes(diceUrl)) {
+                    updateDicePosition(element);
+                } else {
+                    updateCardPosition(element);
+                }
+            });
         };
     }
     function adjustButtonBanner() {
@@ -206,15 +268,19 @@
     window.addEventListener('resize', () => {
         requestAnimationFrame(() => {
             adjustCardSize();
+            adjustDiceSize();
             adjustContainerSize();
             adjustButtonBanner();
         });
     });
     document.addEventListener('DOMContentLoaded', () => {
         adjustCardSize();
+        adjustDiceSize();
         adjustContainerSize();
         adjustButtonBanner();
+        addDice(); 
     });
 </script>
+
 </body>
 </html>
