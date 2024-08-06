@@ -24,6 +24,7 @@
         <button class="button" id="donate-button">Donate</button>
         <button class="button" id="import-button">Import Deck</button>
         <button class="button" id="clear-deck-button">Clear Deck</button>
+		<button class="button" id="mulligan-button">Mulligan</button>
     </div>
     <div id="drag-container">
     </div>
@@ -42,9 +43,10 @@
     const popup = document.getElementById('popup');
     const goBackButton = document.getElementById('go-back-button');
     const loadCodeButton = document.getElementById('load-code-button');
+	const mulliganButton = document.getElementById('mulligan-button');
     const clearDeckButton = document.getElementById('clear-deck-button');
     const container = document.getElementById('drag-container');
-    const defaultImageUrl = 'https://images.digimoncard.io/images/assets/CardBack.jpg';
+    const defaultImageUrl = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
     const diceUrl = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png';
     donateButton.addEventListener('click', () => {
         alert('Thanks for donation');
@@ -56,18 +58,29 @@
         popup.style.display = 'none';
     });
     loadCodeButton.addEventListener('click', () => {
-        const input = document.getElementById('text-input').value.trim();
-        const lines = input.split('\n');
-        lines.forEach(line => {
-            const [count, code] = line.trim().split(' ');
-            const numCards = parseInt(count);
-            const cardCode = code.toUpperCase().trim();
-            if (!isNaN(numCards) && cardCode) {
-                addCards(numCards, cardCode);
+    const input = document.getElementById('text-input').value.trim();
+    const lines = input.split('\n');
+    const cardEntries = [];
+    lines.forEach(line => {
+        const [count, code] = line.trim().split(' ');
+        const numCards = parseInt(count);
+        const cardCode = code.toUpperCase().trim();
+        if (!isNaN(numCards) && cardCode) {
+            for (let i = 0; i < numCards; i++) {
+                cardEntries.push(cardCode);
             }
-        });
-        popup.style.display = 'none';
+        }
     });
+    const shuffle = array => array.sort(() => Math.random() - 0.5);
+    for (let i = 0; i < 3; i++) {
+        shuffle(cardEntries);
+    }
+    cardEntries.forEach(cardCode => {
+        addCards(1, cardCode); 
+    });
+
+    popup.style.display = 'none';
+});
     clearDeckButton.addEventListener('click', () => {
     const elements = container.children;
     for (let i = elements.length - 1; i >= 0; i--) {
@@ -77,6 +90,35 @@
         }
     }
 });
+	mulliganButton.addEventListener('click', () => {
+        const cards = Array.from(container.children).filter(child => !child.src.includes(diceUrl));
+        cards.forEach(card => {
+            const cardRect = card.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            const cardLeft = cardRect.left - containerRect.left;
+            const cardTop = cardRect.top - containerRect.top;
+            const cardRight = cardLeft + card.offsetWidth;
+            const cardBottom = cardTop + card.offsetHeight;
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            const regionD = {
+                left: containerWidth * 0.13,
+                right: containerWidth * 0.19,
+                top: containerHeight * 0.87,
+                bottom: containerHeight * 1
+            };
+            const inRegionD = cardRight > regionD.left && cardLeft < regionD.right &&
+                              cardBottom > regionD.top && cardTop < regionD.bottom;
+			card.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
+			card.style.transform = 'rotate(0deg)';
+			
+            if (inRegionD) {EggDeck(card);} else {MainDeck(card);}
+        });
+        let zIndices = cards.map(card => parseInt(card.style.zIndex) || 1);
+        zIndices = zIndices.sort(() => Math.random() - 0.5);
+        cards.forEach((card, index) => {card.style.zIndex = zIndices[index];});
+});
+
     function addCards(num, code) {
     for (let i = 0; i < num; i++) {
         const card = document.createElement('img');
@@ -86,12 +128,12 @@
         img.onload = function() {
             card.src = imageUrl;
             card.dataset.originalImageUrl = imageUrl; // Store the original image URL
-            centerCard(card);
+            MainDeck(card);
         };
         img.onerror = function() {
             card.src = defaultImageUrl;
             card.dataset.originalImageUrl = defaultImageUrl; // Store the default image URL
-            centerCard(card);
+            MainDeck(card);
         };
         card.className = 'card';
         card.style.width = (window.innerWidth / 10) + 'px';
@@ -101,13 +143,28 @@
     }
     popup.style.display = 'none';
 }
-    function centerCard(card) {
+    function MainDeck(card) {
         const containerWidth = container.offsetWidth;
         const containerHeight = container.offsetHeight;
         const cardWidth = card.offsetWidth;
         const cardHeight = card.offsetHeight;
         const defaultCenterXRatio = 0.875;
         const defaultCenterYRatio = 0.14;
+        const defaultCenterX = containerWidth * defaultCenterXRatio;
+        const defaultCenterY = containerHeight * defaultCenterYRatio;
+        card.dataset.defaultCenterXRatio = defaultCenterXRatio;
+        card.dataset.defaultCenterYRatio = defaultCenterYRatio;
+        card.dataset.visualLeftRatio = defaultCenterXRatio;
+        card.dataset.visualTopRatio = defaultCenterYRatio;
+        updateCardPosition(card);
+    }
+	function EggDeck(card) {
+        const containerWidth = container.offsetWidth;
+        const containerHeight = container.offsetHeight;
+        const cardWidth = card.offsetWidth;
+        const cardHeight = card.offsetHeight;
+        const defaultCenterXRatio = 0.065;
+        const defaultCenterYRatio = 0.708;
         const defaultCenterX = containerWidth * defaultCenterXRatio;
         const defaultCenterY = containerHeight * defaultCenterYRatio;
         card.dataset.defaultCenterXRatio = defaultCenterXRatio;
