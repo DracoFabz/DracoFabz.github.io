@@ -48,6 +48,7 @@
     const container = document.getElementById('drag-container');
     const defaultImageUrl = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
     const diceUrl = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png';
+	let currentDeckType = "Deck"; // Default deck type
     donateButton.addEventListener('click', () => {
         alert('Thanks for donation');
     });
@@ -58,38 +59,51 @@
         popup.style.display = 'none';
     });
     loadCodeButton.addEventListener('click', () => {
-    const input = document.getElementById('text-input').value.trim();
-    const lines = input.split('\n');
-    const cardEntries = [];
-    lines.forEach(line => {
-        const [count, code] = line.trim().split(' ');
-        const numCards = parseInt(count);
-        const cardCode = code.toUpperCase().trim();
-        if (!isNaN(numCards) && cardCode) {
-            for (let i = 0; i < numCards; i++) {
-                cardEntries.push(cardCode);
+	let currentDeckType = "Deck"; // Default deck type
+        const input = document.getElementById('text-input').value.trim();
+        const lines = input.split('\n');
+        const cardEntries = [];
+        lines.forEach(line => {
+            line = line.trim();
+            if (line.startsWith('//')) {
+                if (line.toLowerCase().includes('egg deck')) {
+                    currentDeckType = "Egg";
+                } else {
+					currentDeckType = "Deck";
+				}
+                return; // Ignore lines starting with //
+            }
+            const firstChar = line.charAt(0);
+            if (!isNaN(firstChar)) {
+                const parts = line.split(' ');
+                const numCards = parseInt(firstChar);
+                const cardCode = parts[parts.length - 1].toUpperCase().trim();
+                if (!isNaN(numCards) && cardCode) {
+                    for (let i = 0; i < numCards; i++) {
+                        cardEntries.push({ code: cardCode, type: currentDeckType });
+                    }
+                }
+            }
+        });
+        const shuffle = array => array.sort(() => Math.random() - 0.5);
+        for (let i = 0; i < 3; i++) {
+            shuffle(cardEntries);
+        }
+        cardEntries.forEach(entry => {
+            addCards(1, entry.code, entry.type);
+        });
+
+        popup.style.display = 'none';
+    });
+    clearDeckButton.addEventListener('click', () => {
+        const elements = container.children;
+        for (let i = elements.length - 1; i >= 0; i--) {
+            const element = elements[i];
+            if (!element.src.includes(diceUrl)) {
+                container.removeChild(element);
             }
         }
     });
-    const shuffle = array => array.sort(() => Math.random() - 0.5);
-    for (let i = 0; i < 3; i++) {
-        shuffle(cardEntries);
-    }
-    cardEntries.forEach(cardCode => {
-        addCards(1, cardCode); 
-    });
-
-    popup.style.display = 'none';
-});
-    clearDeckButton.addEventListener('click', () => {
-    const elements = container.children;
-    for (let i = elements.length - 1; i >= 0; i--) {
-        const element = elements[i];
-        if (!element.src.includes(diceUrl)) { 
-            container.removeChild(element);
-        }
-    }
-});
 	mulliganButton.addEventListener('click', () => {
         const cards = Array.from(container.children).filter(child => !child.src.includes(diceUrl));
         cards.forEach(card => {
@@ -115,11 +129,12 @@
             if (inRegionD) {EggDeck(card);} else {MainDeck(card);}
         });
         let zIndices = cards.map(card => parseInt(card.style.zIndex) || 1);
-        zIndices = zIndices.sort(() => Math.random() - 0.5);
-        cards.forEach((card, index) => {card.style.zIndex = zIndices[index];});
+		for (let i = zIndices.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[zIndices[i], zIndices[j]] = [zIndices[j], zIndices[i]];}
+		cards.forEach((card, index) => {card.style.zIndex = zIndices[index];});
 });
-
-    function addCards(num, code) {
+    function addCards(num, code, type) {
     for (let i = 0; i < num; i++) {
         const card = document.createElement('img');
         const imageUrl = `https://images.digimoncard.io/images/cards/${code}.jpg`;
@@ -128,12 +143,20 @@
         img.onload = function() {
             card.src = imageUrl;
             card.dataset.originalImageUrl = imageUrl; // Store the original image URL
-            MainDeck(card);
+            if (type === 'Egg') {
+                EggDeck(card);
+            } else {
+                MainDeck(card);
+            }
         };
         img.onerror = function() {
             card.src = defaultImageUrl;
             card.dataset.originalImageUrl = defaultImageUrl; // Store the default image URL
-            MainDeck(card);
+            if (type === 'Egg') {
+                EggDeck(card);
+            } else {
+                MainDeck(card);
+            }
         };
         card.className = 'card';
         card.style.width = (window.innerWidth / 10) + 'px';
