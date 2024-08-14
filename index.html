@@ -14,7 +14,7 @@
         .card {position: absolute; cursor: pointer; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 2; transition: transform 0.3s;}
         #popup {display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #ffffff; border: 2px solid grey; padding: 20px; border-radius: 20px; width: 300px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); z-index: 3;}
         #popup h2 {margin-top: 0;}
-        #text-input {width: 100%; height: 100px; border: 1px solid grey; border-radius: 10px; margin: 10px 0; padding: 10px; resize: none;}
+        #text-input {width: 100%; height: 100px; border: 1px solid grey; border-radius: 10px; margin: 10px -10px; padding: 10px; resize: none;}
         #popup-buttons {text-align: center;}
         .tooltip {position: absolute;background-color: rgba(0, 0, 0, 0.7);color: white;padding: 10px;border-radius: 5px;display: none; /* Hidden by default */max-width: 200px;word-wrap: break-word;z-index: 1000;}
         .tooltip.show {display: block;}
@@ -60,29 +60,50 @@
     goBackButton.addEventListener('click', () => {
         popup.style.display = 'none';
     });
+	window.addEventListener('resize', () => {
+        requestAnimationFrame(() => {
+            adjustCardSize();
+            adjustDiceSize();
+            adjustContainerSize();
+            adjustButtonBanner();
+        });
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+        adjustCardSize();
+        adjustDiceSize();
+        adjustContainerSize();
+        adjustButtonBanner();
+        addDice(); 
+    });
     loadCodeButton.addEventListener('click', () => {
 		let currentDeckType = "Deck"; // Default deck type
-			const input = document.getElementById('text-input').value.trim();
-			const lines = input.split('\n');
-			const cardEntries = [];
-			lines.forEach(line => {
-				line = line.trim();
-				if (line.startsWith('//')) {
-					if (line.toLowerCase().includes('egg deck')) {currentDeckType = "Egg";} else {currentDeckType = "Deck";}
-					return;}
-				const firstChar = line.charAt(0);
-				if (!isNaN(firstChar)) {
-					const parts = line.split(' ');
-					const numCards = parseInt(firstChar);
-					const cardCode = parts[parts.length - 1].toUpperCase().trim();
-					if (!isNaN(numCards) && cardCode) {
-						for (let i = 0; i < numCards; i++) {
-							cardEntries.push({ code: cardCode, type: currentDeckType });}}}});
-			const shuffle = array => array.sort(() => Math.random() - 0.5);
-			for (let i = 0; i < 3; i++) {shuffle(cardEntries);}
-			cardEntries.forEach(entry => {
-				addCards(1, entry.code, entry.type);});
-			popup.style.display = 'none';
+		let input = document.getElementById('text-input').value.trim();
+		input = input.replace(/[()]/g, '');
+		const lines = input.split('\n');
+		const cardEntries = [];
+		lines.forEach(line => {
+			line = line.trim();
+			if (line.startsWith('//')) {
+				if (line.toLowerCase().includes('egg deck')) {currentDeckType = "Egg";} else {currentDeckType = "Deck";}
+				return;
+			}
+			const firstChar = line.charAt(0);
+			if (!isNaN(firstChar)) {
+				const parts = line.split(' ');
+				const numCards = parseInt(firstChar);
+				const cardCode = parts[parts.length - 1].toUpperCase().trim();
+				if (!isNaN(numCards) && cardCode) {
+					for (let i = 0; i < numCards; i++) {
+						cardEntries.push({ code: cardCode, type: currentDeckType });
+					}
+				}
+			}
+		});
+		shuffleArray(cardEntries);
+		cardEntries.forEach(entry => {
+			addCards(1, entry.code, entry.type);
+		});
+		popup.style.display = 'none';
 	});
     clearDeckButton.addEventListener('click', () => {
         const elements = container.children;
@@ -93,68 +114,50 @@
     });
 	mulliganButton.addEventListener('click', () => {
 		const cards = Array.from(container.children).filter(child => !child.src.includes(diceUrl));
-		const containerWidth = container.offsetWidth;
-		const containerHeight = container.offsetHeight;
-		const raisingAreaCards = [];
-		const nonRaisingAreaCards = [];
-		const RaisingArea = {
-			left: containerWidth * 0.13,
-			right: containerWidth * 0.19,
-			top: containerHeight * 0.87,
-			bottom: containerHeight * 1
-		};
-		cards.forEach(card => {
-			const cardRect = card.getBoundingClientRect();
-			const containerRect = container.getBoundingClientRect();
-			const cardLeft = cardRect.left - containerRect.left;
-			const cardTop = cardRect.top - containerRect.top;
-			const cardRight = cardLeft + card.offsetWidth;
-			const cardBottom = cardTop + card.offsetHeight;
-			const inRaisingArea = cardRight > RaisingArea.left && cardLeft < RaisingArea.right &&
-								  cardBottom > RaisingArea.top && cardTop < RaisingArea.bottom;
-			if (inRaisingArea) {raisingAreaCards.push(card);} else {nonRaisingAreaCards.push(card);}
+		shuffleArray(cards);
+		const maxZIndex = cards.length;
+		cards.forEach((card, index) => {
+			card.style.zIndex = maxZIndex - index; // Adjust the Z-index for shuffling
 		});
-		shuffleArray(raisingAreaCards);
-		raisingAreaCards.forEach(card => {
-			card.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
-			card.style.transform = 'rotate(0deg)';
-			EggDeck(card);
+		const eggDeckCards = cards.filter(card => card.dataset.decktype === 'Egg');
+		const mainDeckCards = cards.filter(card => card.dataset.decktype !== 'Egg');
+		eggDeckCards.forEach(card => {
+			HomeDeck(card);
 		});
-		shuffleArray(nonRaisingAreaCards);
-		const securityCards = nonRaisingAreaCards.slice(0, 5);
-		const handCards = nonRaisingAreaCards.slice(5, 10);
-		const mainDeckCards = nonRaisingAreaCards.slice(10);
+		const securityCards = mainDeckCards.slice(0, 5);
 		securityCards.forEach(card => {
 			card.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
 			card.style.transform = 'rotate(-90deg)';
 		});
 		MoveTo(securityCards, {
-			left: containerWidth * 0.04,
-			top: containerHeight * 0.18,
+			left: container.offsetWidth * 0.04,
+			top: container.offsetHeight * 0.18,
 			xSpacing: 0.05,
 			ySpacing: 0.22
 		});
+		const handCards = mainDeckCards.slice(5, 10);
 		handCards.forEach(card => {
 			card.src = card.dataset.originalImageUrl;
 			card.style.transform = 'rotate(0deg)';
 		});
 		MoveTo(handCards, {
-			left: containerWidth * 0.5,
-			top: containerHeight * 0.84,
+			left: container.offsetWidth * 0.5,
+			top: container.offsetHeight * 0.84,
 			xSpacing: 0.9,
 			ySpacing: 0
 		});
-		mainDeckCards.forEach(card => {
+		mainDeckCards.slice(10).forEach(card => {
 			card.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
 			card.style.transform = 'rotate(0deg)';
-			MainDeck(card);
+			HomeDeck(card);
 		});
-});
+	});
 	function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
+    const shuffle = (arr) => {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];}};
+		for (let k = 0; k < 3; k++) {shuffle(array);}
 }
 	function MoveTo(cards, area) {
     cards.forEach((card, i) => {
@@ -166,113 +169,12 @@
         card.style.transition = 'left 0s ease, top 0s ease'; 
         card.style.left = `${positionX}px`;
         card.style.top = `${positionY}px`;
-		card.style.zIndex = highestZIndex;
+		card.style.zIndex = ++highestZIndex;
         card.addEventListener('transitionend', () => {
             updateCardPosition(card);
         }, { once: true });
     });
 }
-function addCards(num, code, type) {
-    const apiUrl = `https://digimoncard.io/api/search.php?card=${code}`;
-    function fetchCardDescription() {
-        return fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl))
-            .then(response => response.text())
-            .then(responseText => {
-                const data = JSON.parse(responseText);
-                if (data.length > 0) {
-                    const cardData = data[0];
-                    return {
-                        name: cardData.name,
-                        main_effect: cardData.main_effect,
-                        source_effect: cardData.source_effect
-                    };
-                } else {
-                    return {
-                        name: 'Unknown',
-                        main_effect: 'No effect available',
-                        source_effect: 'No effect available'
-                    };
-                }
-            })
-            .catch(() => ({
-                name: 'Error',
-                main_effect: 'Failed to fetch effect',
-                source_effect: 'Failed to fetch effect'
-            }));}
-    function createCard(description) {
-        const card = document.createElement('img');
-        const imageUrl = `https://images.digimoncard.io/images/cards/${code}.jpg`;
-        const img = new Image();
-        img.src = imageUrl;
-        img.onload = function() {
-            card.src = imageUrl;
-            card.dataset.originalImageUrl = imageUrl;
-            card.dataset.name = description.name;
-            card.dataset.mainEffect = description.main_effect;
-            card.dataset.sourceEffect = description.source_effect;
-            if (type === 'Egg') {
-                EggDeck(card);
-            } else {
-                MainDeck(card);
-            }
-            setupCardTooltips(card);
-        };
-        img.onerror = function() {
-            card.src = defaultImageUrl;
-            card.dataset.originalImageUrl = defaultImageUrl;
-            card.dataset.name = description.name;
-            card.dataset.mainEffect = description.main_effect;
-            card.dataset.sourceEffect = description.source_effect;
-            if (type === 'Egg') {
-                EggDeck(card);
-            } else {
-                MainDeck(card);
-            }
-            setupCardTooltips(card);
-        };
-        card.className = 'card';
-        card.style.width = (window.innerWidth / 10) + 'px';
-        card.style.height = 'auto';
-        container.appendChild(card);
-        makeDraggable(card);
-    }
-    fetchCardDescription().then(description => {
-        for (let i = 0; i < num; i++) {
-            createCard(description);
-        }
-    });
-    popup.style.display = 'none';
-}
-    function MainDeck(card) {
-        const containerWidth = container.offsetWidth;
-        const containerHeight = container.offsetHeight;
-        const cardWidth = card.offsetWidth;
-        const cardHeight = card.offsetHeight;
-        const defaultCenterXRatio = 0.875;
-        const defaultCenterYRatio = 0.14;
-        const defaultCenterX = containerWidth * defaultCenterXRatio;
-        const defaultCenterY = containerHeight * defaultCenterYRatio;
-        card.dataset.defaultCenterXRatio = defaultCenterXRatio;
-        card.dataset.defaultCenterYRatio = defaultCenterYRatio;
-        card.dataset.visualLeftRatio = defaultCenterXRatio;
-        card.dataset.visualTopRatio = defaultCenterYRatio;
-        updateCardPosition(card);
-    }
-	function EggDeck(card) {
-        const containerWidth = container.offsetWidth;
-        const containerHeight = container.offsetHeight;
-        const cardWidth = card.offsetWidth;
-        const cardHeight = card.offsetHeight;
-        const defaultCenterXRatio = 0.065;
-        const defaultCenterYRatio = 0.708;
-        const defaultCenterX = containerWidth * defaultCenterXRatio;
-        const defaultCenterY = containerHeight * defaultCenterYRatio;
-        card.dataset.defaultCenterXRatio = defaultCenterXRatio;
-        card.dataset.defaultCenterYRatio = defaultCenterYRatio;
-        card.dataset.visualLeftRatio = defaultCenterXRatio;
-        card.dataset.visualTopRatio = defaultCenterYRatio;
-        updateCardPosition(card);
-    }
     function updateCardPosition(card) {
         const containerWidth = container.offsetWidth;
         const containerHeight = container.offsetHeight;
@@ -287,70 +189,70 @@ function addCards(num, code, type) {
         card.style.left = newX + 'px';
         card.style.top = newY + 'px';
     }
+	function CheckArea(card, areaIndex) {
+		const container = document.getElementById('drag-container');
+		const containerWidth = container.offsetWidth;
+		const containerHeight = container.offsetHeight;
+		const cardRect = card.getBoundingClientRect();
+		const containerRect = container.getBoundingClientRect();
+		const cardLeft = cardRect.left - containerRect.left;
+		const cardTop = cardRect.top - containerRect.top;
+		const cardRight = cardLeft + card.offsetWidth;
+		const cardBottom = cardTop + card.offsetHeight;
+		const areas = [
+			{ // Trash Area [0]
+				left: containerRect.width * 0.92,
+				right: containerRect.width,
+				top: containerRect.height * 0.25,
+				bottom: containerRect.height * 0.60
+			},
+			{ // Security Area [1]
+				left: 0,
+				right: containerRect.width * 0.12,
+				top: containerRect.height * 0.3,
+				bottom: containerRect.height * 0.45
+			},
+			{ // Deck Area [2]
+				left: containerRect.width * 0.92,
+				right: containerRect.width,
+				top: containerRect.height * 0.25,
+				bottom: containerRect.height * 0.27
+			},
+			{ // Egg Area [3]
+				left: containerRect.width * 0.13,
+				right: containerRect.width * 0.11,
+				top: containerRect.height * 0.87,
+				bottom: containerRect.height
+			},
+			{ // Raising Area [4]
+				left: containerRect.width * 0.13,
+				right: containerRect.width * 0.19,
+				top: containerRect.height * 0.87,
+				bottom: containerRect.height
+			}
+			// Add more areas as needed
+		];
+		const area = areas[areaIndex];
+		const isInArea = cardRight > area.left && cardLeft < area.right &&
+						 cardBottom > area.top && cardTop < area.bottom;
+		return isInArea;
+	}
+
 	function checkCardRegion(card) {
-    const container = document.getElementById('drag-container');
-    const containerWidth = container.offsetWidth;
-    const containerHeight = container.offsetHeight;
-    const cardRect = card.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-    const cardLeft = cardRect.left - containerRect.left;
-    const cardTop = cardRect.top - containerRect.top;
-    const cardRight = cardLeft + card.offsetWidth;
-    const cardBottom = cardTop + card.offsetHeight;
-    const SecurityArea = {
-        left: 0,
-        right: containerWidth * 0.12,
-        top: containerHeight * 0.3,
-        bottom: containerHeight * 0.45
-    };
-    const DeckArea = {
-        left: containerWidth * 0.92,
-        right: containerWidth * 1,
-        top: containerHeight * 0.25,
-        bottom: containerHeight * 0.27
-    };
-    const EggArea = {
-        left: containerWidth * 0.13,
-        right: containerWidth * 0.11,
-        top: containerHeight * 0.87,
-        bottom: containerHeight * 1
-    };
-	const RaisingArea = {
-        left: containerWidth * 0.13,
-        right: containerWidth * 0.19,
-        top: containerHeight * 0.87,
-        bottom: containerHeight * 1
-    };
-	const TrashArea = {
-        left: containerWidth * 0.92,
-        right: containerWidth * 1,
-        top: containerHeight * 0.25,
-        bottom: containerHeight * 0.60
-    };
-	const inSecurityArea = cardRight > SecurityArea.left && cardLeft < SecurityArea.right &&
-                      cardBottom > SecurityArea.top && cardTop < SecurityArea.bottom;
-    const inDeckArea = cardRight > DeckArea.left && cardLeft < DeckArea.right &&
-                      cardBottom > DeckArea.top && cardTop < DeckArea.bottom;
-    const inEggArea = cardRight > EggArea.left && cardLeft < EggArea.right &&
-                      cardBottom > EggArea.top && cardTop < EggArea.bottom;
-	const inRaisingArea = cardRight > RaisingArea.left && cardLeft < RaisingArea.right &&
-                      cardBottom > RaisingArea.top && cardTop < RaisingArea.bottom;
-	const inTrashArea = cardRight > TrashArea.left && cardLeft < TrashArea.right &&
-                      cardBottom > TrashArea.top && cardTop < TrashArea.bottom;
-    if (inSecurityArea || inDeckArea || inEggArea) {
-		card.src = defaultImageUrl;} else {card.src = card.dataset.originalImageUrl || defaultImageUrl;}
-    if (inSecurityArea) {
-        let rotation = parseInt(card.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
-        if (rotation % 360 === 0) {rotation -= 90;}
-        rotation = (rotation - 360) % 360;
-        card.style.transform = `rotate(${rotation}deg)`;}
-	if (inRaisingArea || inTrashArea) {
-        let rotation = parseInt(card.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
-        if (rotation % 360 === 0) {rotation -= 0;} else {rotation += 90;}
-        rotation = (rotation - 360) % 360;
-        card.style.transform = `rotate(${rotation}deg)`;
-    }
-}
+		if (CheckArea(card, 1) || CheckArea(card, 2) || CheckArea(card, 3)) {
+			card.src = defaultImageUrl;} else {card.src = card.dataset.originalImageUrl || defaultImageUrl;}
+		if (CheckArea(card, 1)) {
+			let rotation = parseInt(card.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
+			if (rotation % 360 === 0) {rotation -= 90;}
+			rotation = (rotation - 360) % 360;
+			card.style.transform = `rotate(${rotation}deg)`;}
+		if (CheckArea(card, 4) || CheckArea(card, 0)) {
+			let rotation = parseInt(card.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
+			if (rotation % 360 === 0) {rotation -= 0;} else {rotation += 90;}
+			rotation = (rotation - 360) % 360;
+			card.style.transform = `rotate(${rotation}deg)`;
+		}
+	}
     let highestZIndex = 1;
     function makeDraggable(element) {
     let isMoving = false;
@@ -368,6 +270,7 @@ function addCards(num, code, type) {
     });
         function moveElement(e) {
         if (isMoving) {
+			element.style.zIndex = ++highestZIndex;
             const dx = e.clientX - startX;
             const dy = e.clientY - startY;
             const newX = initialX + dx;
@@ -388,42 +291,31 @@ function addCards(num, code, type) {
     }
     function stopMove() {
         isMoving = false;
+		element.style.zIndex = ++highestZIndex;
         document.removeEventListener('mousemove', moveElement);
         document.removeEventListener('mouseup', stopMove);
     }
     element.addEventListener('dblclick', () => {
-		const containerWidth = container.offsetWidth;
-        const containerHeight = container.offsetHeight;
-		const cardRect = element.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        const cardLeft = cardRect.left - containerRect.left;
-        const cardTop = cardRect.top - containerRect.top;
-        const cardRight = cardLeft + element.offsetWidth;
-        const cardBottom = cardTop + element.offsetHeight;
-        const TrashArea = {
-            left: containerWidth * 0.92,
-            right: containerWidth * 1,
-            top: containerHeight * 0.25,
-            bottom: containerHeight * 0.60
-        };
-		const inTrashArea = cardRight > TrashArea.left && cardLeft < TrashArea.right &&
-                            cardBottom > TrashArea.top && cardTop < TrashArea.bottom;
-        let rotation = parseInt(element.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
-         if (inTrashArea) {
-			element.style.transform = 'rotate(0deg)';
-            MainDeck(element);
-            element.style.zIndex = 1;
-			element.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
-		} else {
-		if (rotation % 360 === 0) {
+	element.style.zIndex = ++highestZIndex;
+    let rotation = parseInt(element.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
+
+    if (CheckArea(element, 0)) {
+        element.style.transform = 'rotate(0deg)';
+        HomeDeck(element);
+        element.style.zIndex = 1;
+        element.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
+    } else {
+        if (rotation % 360 === 0) {
             rotation -= 90;
         } else {
             rotation += 90;
-        }}
+        }
         rotation = (rotation - 360) % 360;
         element.style.transform = `rotate(${rotation}deg)`;
-    });
-	 element.dataset.originalImageUrl = element.src;
+    }
+    showCardInfo({ currentTarget: element });
+});
+	element.dataset.originalImageUrl = element.src;
     }
     function addDice() {
         const dice = document.createElement('img');
@@ -509,51 +401,132 @@ function addCards(num, code, type) {
         buttons.forEach(button => {
             button.style.height = `${0.7 * bannerHeight}px`;
             button.style.lineHeight = `${0.7 * bannerHeight}px`;
-            button.style.fontSize = `${0.35 * bannerHeight}px`;
+            button.style.fontSize = `${0.25 * bannerHeight}px`;
         });
     }
-	
-    window.addEventListener('resize', () => {
-        requestAnimationFrame(() => {
-            adjustCardSize();
-            adjustDiceSize();
-            adjustContainerSize();
-            adjustButtonBanner();
-        });
-    });
-    document.addEventListener('DOMContentLoaded', () => {
-        adjustCardSize();
-        adjustDiceSize();
-        adjustContainerSize();
-        adjustButtonBanner();
-        addDice(); 
-    });
-	
-	function setupCardTooltips(card) {
-    const tooltip = document.createElement('div');
-    tooltip.className = 'tooltip';
-    document.body.appendChild(tooltip);
-    let hoverTimeout;
-    function showTooltip(event) {
-        hoverTimeout = setTimeout(() => {
-            const card = event.currentTarget;
-            if (card.dataset.originalImageUrl !== defaultImageUrl) {
-                tooltip.innerHTML = '`<strong>Name:</strong> ${card.dataset.name}<br><strong>Main Effect:</strong> ${card.dataset.mainEffect}<br><strong>Source Effect:</strong> ${card.dataset.sourceEffect}`';
-                const rect = card.getBoundingClientRect();
-                tooltip.style.left = `${rect.right + 10}px`;
-                tooltip.style.top = `${rect.top}px`;
-                tooltip.classList.add('show');
+    
+function addCards(num, code, type) {
+    const apiUrl = `https://digimoncard.io/api/search.php?card=${code}`;
+        ConectToServer(apiUrl)
+        .then(description => {
+            for (let i = 0; i < num; i++) {
+                GetCardInfo(code, type, description);
             }
-        }, 3000);
-    }
-    function hideTooltip() {
-        clearTimeout(hoverTimeout);
-        tooltip.classList.remove('show');
-    }
-    card.addEventListener('mouseenter', showTooltip);
-    card.addEventListener('mouseleave', hideTooltip);
+        })
+        .catch(error => {
+            console.error('Error fetching card description:', error);
+        });
+    popup.style.display = 'none';
 }
-	
+function ConectToServer(apiUrl) {
+    return fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl))
+        .then(response => response.text())
+        .then(responseText => {
+            const data = JSON.parse(responseText);
+            if (data.length > 0) {
+                const cardData = data[0];
+                return {
+                    name: cardData.name,
+                    main_effect: cardData.main_effect,
+                    source_effect: cardData.source_effect};
+            } else {return {
+                    name: 'Unknown',
+                    main_effect: 'No effect available',
+                    source_effect: 'No effect available'
+                };
+            }
+        })
+        .catch(() => ({
+            name: 'Error',
+            main_effect: 'Failed to fetch effect',
+            source_effect: 'Failed to fetch effect'
+        }));
+}
+function GetCardInfo(code, type, description) {
+    const card = document.createElement('img');
+    const imageUrl = `https://images.digimoncard.io/images/cards/${code}.jpg`;
+    const defaultImageUrl = 'path/to/default/image.jpg'; // Define the path to the default image
+    const img = new Image();
+    img.onload = function() {
+        card.src = imageUrl;
+        card.dataset.originalImageUrl = imageUrl;
+        card.dataset.name = description.name;
+        card.dataset.mainEffect = description.main_effect;
+        card.dataset.sourceEffect = description.source_effect;
+    };
+    img.onerror = function() {
+        card.src = defaultImageUrl;
+        card.dataset.originalImageUrl = defaultImageUrl;
+        card.dataset.name = description.name;
+        card.dataset.mainEffect = description.main_effect;
+        card.dataset.sourceEffect = description.source_effect;
+    };
+    img.src = imageUrl;
+    card.className = 'card';
+    card.style.width = (window.innerWidth / 10) + 'px';
+    card.style.height = 'auto';
+    card.dataset.decktype = type;  // Save the deck type in the card attributes
+    container.appendChild(card);
+	HomeDeck(card);
+    makeDraggable(card);
+    setupCardTooltips(card);
+}
+
+function HomeDeck(card) {
+    const containerWidth = container.offsetWidth;
+    const containerHeight = container.offsetHeight;
+    const cardWidth = card.offsetWidth;
+    const cardHeight = card.offsetHeight;
+    let defaultCenterXRatio, defaultCenterYRatio;
+    if (card.dataset.decktype === "Egg") 
+		{defaultCenterXRatio = 0.065;defaultCenterYRatio = 0.708;} 
+		else 
+		{defaultCenterXRatio = 0.875;defaultCenterYRatio = 0.14;}
+	const defaultCenterX = containerWidth * defaultCenterXRatio;
+    const defaultCenterY = containerHeight * defaultCenterYRatio;
+    card.dataset.defaultCenterXRatio = defaultCenterXRatio;
+    card.dataset.defaultCenterYRatio = defaultCenterYRatio;
+    card.dataset.visualLeftRatio = defaultCenterXRatio;
+    card.dataset.visualTopRatio = defaultCenterYRatio;
+	card.style.transform = 'rotate(0deg)';
+	card.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
+    updateCardPosition(card);
+}
+	function setupCardTooltips(card) {
+		const tooltip = document.createElement('div');
+		tooltip.className = 'tooltip';
+		document.body.appendChild(tooltip);
+		let hoverTimeout;
+		card.addEventListener('mouseenter', event => {
+			hoverTimeout = setTimeout(() => {
+				showTooltip(event, tooltip);
+			}, 3000);
+		});
+		card.addEventListener('mouseleave', () => {
+			clearTimeout(hoverTimeout);
+			hideTooltip(tooltip);
+		});
+	}
+	function setupCardTooltips(card) {
+		let hoverTimeout;
+		card.addEventListener('mouseenter', event => {
+			hoverTimeout = setTimeout(() => {
+				showCardInfo(event);
+			}, 3000); // Wait 3 seconds before showing the message
+		});
+		card.addEventListener('mouseleave', () => {
+			clearTimeout(hoverTimeout); // Clear timeout if the mouse leaves before 3 seconds
+		});
+	}
+	function showCardInfo(event) {
+		const card = event.currentTarget;
+			const message = `
+${card.dataset.name}\n
+${card.dataset.mainEffect}\n
+${card.dataset.sourceEffect}
+			`;
+			alert(message);
+	}
 </script>
 </body>
 </html>
