@@ -239,6 +239,7 @@
 	}
 
 	function checkCardRegion(card) {
+		if (card.src === 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png') {} else {
 		if (CheckArea(card, 1) || CheckArea(card, 2) || CheckArea(card, 3)) {
 			card.src = defaultImageUrl;} else {card.src = card.dataset.originalImageUrl || defaultImageUrl;}
 		if (CheckArea(card, 1)) {
@@ -251,71 +252,70 @@
 			if (rotation % 360 === 0) {rotation -= 0;} else {rotation += 90;}
 			rotation = (rotation - 360) % 360;
 			card.style.transform = `rotate(${rotation}deg)`;
-		}
+		}}
 	}
     let highestZIndex = 1;
     function makeDraggable(element) {
-    let isMoving = false;
-    let startX, startY, initialX, initialY;
-    element.addEventListener('mousedown', (e) => {
-        isMoving = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        initialX = element.offsetLeft;
-        initialY = element.offsetTop;
-        highestZIndex++;
-        element.style.zIndex = highestZIndex;
-        document.addEventListener('mousemove', moveElement);
-        document.addEventListener('mouseup', stopMove);
-    });
-        function moveElement(e) {
-        if (isMoving) {
+		let isMoving = false;
+		let startX, startY, initialX, initialY;
+		element.addEventListener('mousedown', (e) => {
+			isMoving = true;
+			startX = e.clientX;
+			startY = e.clientY;
+			initialX = element.offsetLeft;
+			initialY = element.offsetTop;
+			highestZIndex++;
+			element.style.zIndex = highestZIndex;
+			document.addEventListener('mousemove', moveElement);
+			document.addEventListener('mouseup', stopMove);
+		});
+			function moveElement(e) {
+			if (isMoving) {
+				element.style.zIndex = ++highestZIndex;
+				const dx = e.clientX - startX;
+				const dy = e.clientY - startY;
+				const newX = initialX + dx;
+				const newY = initialY + dy;
+				const minY = 0;
+				const maxX = container.offsetWidth - element.offsetWidth;
+				const maxY = 1.1 * container.offsetHeight - element.offsetHeight;
+				if (newX >= 0 && newX <= maxX && newY >= minY && newY <= maxY) {
+					element.style.left = newX + 'px';
+					element.style.top = newY + 'px';
+					const visualLeftRatio = newX / container.offsetWidth;
+					const visualTopRatio = newY / container.offsetHeight;
+					element.dataset.visualLeftRatio = visualLeftRatio;
+					element.dataset.visualTopRatio = visualTopRatio;
+					checkCardRegion(element);
+				}
+			}
+		}
+		function stopMove() {
+			isMoving = false;
 			element.style.zIndex = ++highestZIndex;
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
-            const newX = initialX + dx;
-            const newY = initialY + dy;
-            const minY = 0;
-            const maxX = container.offsetWidth - element.offsetWidth;
-            const maxY = 1.1 * container.offsetHeight - element.offsetHeight;
-            if (newX >= 0 && newX <= maxX && newY >= minY && newY <= maxY) {
-                element.style.left = newX + 'px';
-                element.style.top = newY + 'px';
-                const visualLeftRatio = newX / container.offsetWidth;
-                const visualTopRatio = newY / container.offsetHeight;
-                element.dataset.visualLeftRatio = visualLeftRatio;
-                element.dataset.visualTopRatio = visualTopRatio;
-                checkCardRegion(element);
-            }
-        }
-    }
-    function stopMove() {
-        isMoving = false;
-		element.style.zIndex = ++highestZIndex;
-        document.removeEventListener('mousemove', moveElement);
-        document.removeEventListener('mouseup', stopMove);
-    }
-    element.addEventListener('dblclick', () => {
-	element.style.zIndex = ++highestZIndex;
-    let rotation = parseInt(element.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
-
-    if (CheckArea(element, 0)) {
-        element.style.transform = 'rotate(0deg)';
-        HomeDeck(element);
-        element.style.zIndex = 1;
-        element.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
-    } else {
-        if (rotation % 360 === 0) {
-            rotation -= 90;
-        } else {
-            rotation += 90;
-        }
-        rotation = (rotation - 360) % 360;
-        element.style.transform = `rotate(${rotation}deg)`;
-    }
-    showCardInfo({ currentTarget: element });
-});
-	element.dataset.originalImageUrl = element.src;
+			document.removeEventListener('mousemove', moveElement);
+			document.removeEventListener('mouseup', stopMove);
+		}
+		element.addEventListener('dblclick', () => {
+			element.style.zIndex = ++highestZIndex;
+			let rotation = parseInt(element.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
+			if (element.src === 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png') {} else {
+			if (CheckArea(element, 0)) {
+				element.style.transform = 'rotate(0deg)';
+				HomeDeck(element);
+				element.style.zIndex = 1;
+				element.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
+			} else {
+				if (rotation % 360 === 0) {
+					rotation -= 90;
+				} else {
+					rotation += 90;
+				}
+				rotation = (rotation - 360) % 360;
+				element.style.transform = `rotate(${rotation}deg)`;
+			}}
+		});
+		element.dataset.originalImageUrl = element.src;
     }
     function addDice() {
         const dice = document.createElement('img');
@@ -469,7 +469,7 @@ function GetCardInfo(code, type, description) {
     container.appendChild(card);
 	HomeDeck(card);
     makeDraggable(card);
-    setupCardTooltips(card);
+	setupHoverInfo(card);
 }
 
 function HomeDeck(card) {
@@ -492,41 +492,69 @@ function HomeDeck(card) {
 	card.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
     updateCardPosition(card);
 }
-	function setupCardTooltips(card) {
-		const tooltip = document.createElement('div');
-		tooltip.className = 'tooltip';
-		document.body.appendChild(tooltip);
-		let hoverTimeout;
-		card.addEventListener('mouseenter', event => {
-			hoverTimeout = setTimeout(() => {
-				showTooltip(event, tooltip);
-			}, 3000);
-		});
-		card.addEventListener('mouseleave', () => {
-			clearTimeout(hoverTimeout);
-			hideTooltip(tooltip);
-		});
-	}
-	function setupCardTooltips(card) {
-		let hoverTimeout;
-		card.addEventListener('mouseenter', event => {
-			hoverTimeout = setTimeout(() => {
-				showCardInfo(event);
-			}, 3000); // Wait 3 seconds before showing the message
-		});
-		card.addEventListener('mouseleave', () => {
-			clearTimeout(hoverTimeout); // Clear timeout if the mouse leaves before 3 seconds
-		});
-	}
-	function showCardInfo(event) {
-		const card = event.currentTarget;
-			const message = `
-${card.dataset.name}\n
-${card.dataset.mainEffect}\n
-${card.dataset.sourceEffect}
-			`;
-			alert(message);
-	}
+function showCardInfo(event) {
+    const card = event.currentTarget;
+    const infoBox = document.createElement('div');
+    infoBox.style.position = 'absolute';
+    infoBox.style.left = `${card.offsetLeft + card.offsetWidth}px`;
+    infoBox.style.top = `${card.offsetTop}px`;
+    infoBox.style.width = `${2 * card.offsetHeight}px`;
+    infoBox.style.backgroundColor = 'rgba(128, 128, 128, 0.9)';
+    infoBox.style.color = 'white';
+    infoBox.style.fontSize = 'calc(1.0vw)';
+    infoBox.style.padding = '5px';
+    infoBox.style.display = 'flex';
+    infoBox.style.alignItems = 'flex-start';
+    infoBox.style.justifyContent = 'center';
+    infoBox.style.textAlign = 'left';
+    infoBox.style.borderRadius = '5px';
+    infoBox.style.boxShadow = '0 0 3px rgba(0, 0, 0, 1)';
+    infoBox.style.zIndex = parseInt(card.style.zIndex) + 1;
+    const combinedText = `${card.dataset.name}\n${card.dataset.mainEffect}\n${card.dataset.sourceEffect}`;
+    const numCharacters = combinedText.length;
+    const fontSize = parseFloat(infoBox.style.fontSize);
+    const boxWidth = parseFloat(infoBox.style.width);
+    const charsPerLine = Math.floor(boxWidth / fontSize);
+    const numLines = Math.ceil(numCharacters / charsPerLine);
+    const calculatedHeight = numLines * fontSize + 3 * fontSize;
+    infoBox.style.height = `${calculatedHeight}px`;
+    infoBox.innerHTML = `
+        <strong>${card.dataset.name}<br>
+        <br>
+        ${card.dataset.mainEffect}<br>
+        <br>
+        ${card.dataset.sourceEffect}
+    `;
+    container.appendChild(infoBox);
+const removeInfoBox = () => infoBox.remove();
+    const removeTimeout = setTimeout(removeInfoBox, 60000);
+    function removeOnMouseMove() {
+        infoBox.remove();
+        clearTimeout(removeTimeout);
+        card.removeEventListener('mousemove', removeOnMouseMove);
+    }
+
+    card.addEventListener('mousemove', removeOnMouseMove);
+}
+function setupHoverInfo(card) {
+    let hoverTimeout;
+    let isHovered = false;
+    card.addEventListener('mouseenter', () => {
+        isHovered = true;
+        hoverTimeout = setTimeout(() => {
+            if (isHovered) {
+                showCardInfo({ currentTarget: card });
+            }
+        }, 2000);
+    });
+    card.addEventListener('mouseleave', () => {
+        isHovered = false;
+        clearTimeout(hoverTimeout);
+    });
+    card.addEventListener('mousemove', () => {
+        isHovered = true;
+    });
+}
 </script>
 </body>
 </html>
