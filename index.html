@@ -395,95 +395,6 @@
     element.dataset.originalImageUrl = element.src;
 }
 
-// Setup the selection box
-let selectionBox = null;
-let selectedCards = [];
-let initialTouchX, initialTouchY, initialCardPositions = [];
-
-function startSelectionBox(e) {
-    if (e.target === container) {
-        selectionBox = document.createElement('div');
-        selectionBox.style.position = 'absolute';
-        selectionBox.style.border = '1px dashed #00f';
-        selectionBox.style.backgroundColor = 'rgba(0, 0, 255, 0.2)';
-        selectionBox.style.pointerEvents = 'none';
-        container.appendChild(selectionBox);
-        initialTouchX = e.touches[0].clientX - container.getBoundingClientRect().left;
-        initialTouchY = e.touches[0].clientY - container.getBoundingClientRect().top;
-        selectionBox.style.left = `${initialTouchX}px`;
-        selectionBox.style.top = `${initialTouchY}px`;
-        document.addEventListener('touchmove', resizeSelectionBox);
-        document.addEventListener('touchend', finishSelectionBox);
-    }
-}
-
-function resizeSelectionBox(e) {
-    const currentTouchX = e.touches[0].clientX - container.getBoundingClientRect().left;
-    const currentTouchY = e.touches[0].clientY - container.getBoundingClientRect().top;
-    const width = Math.abs(currentTouchX - initialTouchX);
-    const height = Math.abs(currentTouchY - initialTouchY);
-    selectionBox.style.width = `${width}px`;
-    selectionBox.style.height = `${height}px`;
-    if (currentTouchX < initialTouchX) {
-        selectionBox.style.left = `${currentTouchX}px`;
-    }
-    if (currentTouchY < initialTouchY) {
-        selectionBox.style.top = `${currentTouchY}px`;
-    }
-    selectedCards = [];
-    allCards.forEach(card => {
-        const cardRect = card.getBoundingClientRect();
-        const boxRect = selectionBox.getBoundingClientRect();
-        if (
-            cardRect.left >= boxRect.left &&
-            cardRect.right <= boxRect.right &&
-            cardRect.top >= boxRect.top &&
-            cardRect.bottom <= boxRect.bottom
-        ) {
-            selectedCards.push(card);
-        }
-    });
-}
-
-function finishSelectionBox(e) {
-    if (selectionBox) {
-        container.removeChild(selectionBox);
-        selectionBox = null;
-        initialCardPositions = selectedCards.map(card => ({
-            card,
-            initialX: card.offsetLeft,
-            initialY: card.offsetTop
-        }));
-        if (selectedCards.length > 0) {
-            document.addEventListener('touchmove', moveSelectedCards);
-            document.addEventListener('touchend', stopMoveSelectedCards);
-        }
-    }
-}
-
-function moveSelectedCards(e) {
-    const dx = e.touches[0].clientX - container.getBoundingClientRect().left - initialTouchX;
-    const dy = e.touches[0].clientY - container.getBoundingClientRect().top - initialTouchY;
-    selectedCards.forEach(({ card, initialX, initialY }) => {
-        const newX = initialX + dx;
-        const newY = initialY + dy;
-        card.style.left = `${newX}px`;
-        card.style.top = `${newY}px`;
-    });
-}
-
-function stopMoveSelectedCards(e) {
-    document.removeEventListener('touchmove', moveSelectedCards);
-    document.removeEventListener('touchend', stopMoveSelectedCards);
-    selectedCards = [];
-}
-
-container.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1 && e.target === container) {
-        startSelectionBox(e);
-    }
-});
-
     function addDice() {
         const dice = document.createElement('img');
 		const containerWidth = container.offsetWidth;
@@ -717,22 +628,45 @@ container.addEventListener('touchstart', (e) => {
 		card.addEventListener('mousemove', removeOnMouseMove);
 	}
 	function setupHoverInfo(card) {
-		let hoverTimeout;
-		let isHovered = false;
-		card.addEventListener('mouseenter', () => {
-			isHovered = true;
-			hoverTimeout = setTimeout(() => {
-				if (isHovered) {
-					showCardInfo({ currentTarget: card });
-				}
-			}, 2000);
+		let holdTimeout;
+		let isHolding = false;
+		let infoDisplayed = false;
+
+		// Touch start: begins the holding timer
+		card.addEventListener('touchstart', (e) => {
+			if (e.touches.length === 1) {  // Ensure it's a single touch
+				isHolding = true;
+				holdTimeout = setTimeout(() => {
+					if (isHolding) {
+						showCardInfo({ currentTarget: card });
+						infoDisplayed = true;
+					}
+				}, 2000);
+			}
 		});
-		card.addEventListener('mouseleave', () => {
-			isHovered = false;
-			clearTimeout(hoverTimeout);
+
+		// Touch end: if released before 2 seconds, cancel the info display
+		card.addEventListener('touchend', (e) => {
+			if (!infoDisplayed) {
+				isHolding = false;
+				clearTimeout(holdTimeout);
+			}
 		});
-		card.addEventListener('mousemove', () => {
-			isHovered = true;
+
+		// Touch move: cancel the info display if the user moves their finger
+		card.addEventListener('touchmove', () => {
+			if (!infoDisplayed) {
+				isHolding = false;
+				clearTimeout(holdTimeout);
+			}
+		});
+
+		// Global listener to remove the info when interacting with anything else
+		document.addEventListener('touchstart', (e) => {
+			if (infoDisplayed && !card.contains(e.target)) {
+				hideCardInfo();  // You need to implement hideCardInfo to remove the displayed info
+				infoDisplayed = false;
+			}
 		});
 	}
 </script>
