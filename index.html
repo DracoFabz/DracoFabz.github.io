@@ -21,7 +21,7 @@
     </style>
 </head>
 <body>
-    <div id="banner">Deck Tester - V1.3</div>
+    <div id="banner">Deck Tester - V1.4</div>
     <div id="buttons-banner">
         <button class="button" id="donate-button">Donate</button>
         <button class="button" id="import-button">Import Deck</button>
@@ -74,7 +74,7 @@
     if (deckParam) {
         loadDeckFromURL(deckParam);
     }
-});
+	});
     loadCodeButton.addEventListener('click', () => {
 		let currentDeckType = "Deck"; // Default deck type
 		let input = document.getElementById('text-input').value.trim();
@@ -627,12 +627,15 @@
         card.style.top = newY + 'px';
     }
 	function loadDeckFromURL(deckParam) {
-		// Split the deck param by '_'
-		const cardEntries = deckParam.split('_');
+		// Split the deck param by ';' to separate each card entry
+		const cardEntries = deckParam.split(';');
 		cardEntries.forEach(entry => {
-			const [num, code] = entry.split(' ');
-			if (!isNaN(num) && code) {
-				addCards(parseInt(num), code.toUpperCase().trim(), "Deck");
+			// Assuming the format is like "4_BT14-03_D"
+			const [num, code, type] = entry.split('_');
+
+			if (!isNaN(num) && code && (type === 'D' || type === 'E')) {
+				const deckType = type === 'D' ? "Deck" : "Egg";
+				addCards(parseInt(num), code.toUpperCase().trim(), deckType);
 			}
 		});
 	}
