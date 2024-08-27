@@ -21,9 +21,9 @@
     </style>
 </head>
 <body>
-    <div id="banner">Deck Tester - V1.4</div>
+    <div id="banner">Deck Tester - V1.5</div>
     <div id="buttons-banner">
-        <button class="button" id="donate-button">Donate</button>
+        <button class="button" id="donate-button">Help</button>
         <button class="button" id="import-button">Import Deck</button>
         <button class="button" id="clear-deck-button">Clear Deck</button>
 		<button class="button" id="mulligan-button">Mulligan</button>
@@ -52,7 +52,7 @@
     const diceUrl = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png';
 	let currentDeckType = "Deck"; // Default deck type
     donateButton.addEventListener('click', () => {
-        alert('Thanks for donation');
+        alert('Load a deck from code or by link (example: dracofabz.github.io/?deck=4_BT14-033_D;2_BT14-034_E), if you double click a card in the trash, it gets to the bottom of the deck, any questions contact me (DracoFabz) on github or whatsapp +52999901788.');
     });
     importButton.addEventListener('click', () => {
         popup.style.display = 'block';
