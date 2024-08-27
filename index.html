@@ -21,7 +21,7 @@
     </style>
 </head>
 <body>
-    <div id="banner">Deck Tester</div>
+    <div id="banner">DracoFabz.github.io - Deck Tester</div>
     <div id="buttons-banner">
         <button class="button" id="donate-button">Donate</button>
         <button class="button" id="import-button">Import Deck</button>
@@ -668,6 +668,14 @@
 				infoDisplayed = false;
 			}
 		});
+	}
+	function hideCardInfo() {
+		// Assuming that the card info is displayed in a specific element, e.g., with ID 'card-info'
+		const infoElement = document.getElementById('card-info');
+		if (infoElement) {
+			infoElement.style.display = 'none';  // Hide the element
+			infoElement.innerHTML = '';  // Clear the content
+		}
 	}
 </script>
 </body>
