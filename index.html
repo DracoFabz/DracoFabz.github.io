@@ -61,20 +61,7 @@
         popup.style.display = 'none';
     });
 	window.addEventListener('resize', () => {
-        requestAnimationFrame(() => {
-            adjustContainerSize();
-        });
-    });
-	window.addEventListener('resize', function () {
-		let lastInnerWidth = window.innerWidth;
-		let lastInnerHeight = window.innerHeight;
-		setTimeout(function () {
-			if (window.innerWidth !== lastInnerWidth || window.innerHeight !== lastInnerHeight) {
-				requestAnimationFrame(() => {
-					adjustContainerSize();
-				});
-			}
-		}, 200);
+    adjustContainerSize();
 	});
     document.addEventListener('DOMContentLoaded', () => {
         adjustContainerSize();
@@ -313,153 +300,190 @@
 			}
 		});
 	}
-    function makeDraggable(element) {
-		let isMoving = false;
-		let startX, startY, initialX, initialY;
-		element.addEventListener('mousedown', (e) => {
-			isMoving = true;
-			startX = e.clientX;
-			startY = e.clientY;
-			initialX = element.offsetLeft;
-			initialY = element.offsetTop;
-			highestZIndex++;
-			element.style.zIndex = highestZIndex;
-			document.addEventListener('mousemove', moveElement);
-			document.addEventListener('mouseup', stopMove);
-		});
-		function moveElement(e) {
-			if (isMoving) {
-				element.style.zIndex = ++highestZIndex;
-				const dx = e.clientX - startX;
-				const dy = e.clientY - startY;
-				const newX = initialX + dx;
-				const newY = initialY + dy;
-				const minY = 0;
-				const maxX = container.offsetWidth - element.offsetWidth;
-				const maxY = 1.1 * container.offsetHeight - element.offsetHeight;
-				if (newX >= 0 && newX <= maxX && newY >= minY && newY <= maxY) {
-					element.style.left = newX + 'px';
-					element.style.top = newY + 'px';
-					const visualLeftRatio = newX / container.offsetWidth;
-					const visualTopRatio = newY / container.offsetHeight;
-					element.dataset.visualLeftRatio = visualLeftRatio;
-					element.dataset.visualTopRatio = visualTopRatio;
-					checkCardRegion(element);
-					snapToCard(element);
-					snapToPosition(element);
-					const snappedLeft = parseFloat(element.style.left);
-					const snappedTop = parseFloat(element.style.top);
-					element.dataset.visualLeftRatio = snappedLeft / container.offsetWidth;
-					element.dataset.visualTopRatio = snappedTop / container.offsetHeight;
-				}
-			}
-		}
-		function stopMove() {
-			isMoving = false;
-			element.style.zIndex = ++highestZIndex;
-			document.removeEventListener('mousemove', moveElement);
-			document.removeEventListener('mouseup', stopMove);
-		}
-		element.addEventListener('dblclick', () => {
-			element.style.zIndex = ++highestZIndex;
-			let rotation = parseInt(element.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
-			if (element.src === 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png') {} else {
-			if (CheckArea(element, 0)) {
-				element.style.transform = 'rotate(0deg)';
-				HomeDeck(element);
-				element.style.zIndex = 1;
-				element.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
-			} else {
-				if (rotation % 360 === 0) {
-					rotation -= 90;
-				} else {
-					rotation += 90;
-				}
-				rotation = (rotation - 360) % 360;
-				element.style.transform = `rotate(${rotation}deg)`;
-			}}
-		});
-		element.dataset.originalImageUrl = element.src;
+
+	function makeDraggable(element) {
+    let isMoving = false;
+    let startX, startY, initialX, initialY;
+    let longPressTimeout;
+    
+    // Handle single tap
+    element.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {  // Single touch
+            e.preventDefault();  // Prevent default behavior like scrolling
+            isMoving = true;
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            initialX = element.offsetLeft;
+            initialY = element.offsetTop;
+            highestZIndex++;
+            element.style.zIndex = highestZIndex;
+            
+            // Long press detection
+            longPressTimeout = setTimeout(() => {
+                showCardInfo({ currentTarget: element });
+            }, 2000);
+            
+            document.addEventListener('touchmove', moveElement);
+            document.addEventListener('touchend', stopMove);
+        }
+    });
+    
+    function moveElement(e) {
+        if (isMoving) {
+            element.style.zIndex = ++highestZIndex;
+            const dx = e.touches[0].clientX - startX;
+            const dy = e.touches[0].clientY - startY;
+            const newX = initialX + dx;
+            const newY = initialY + dy;
+            const minY = 0;
+            const maxX = container.offsetWidth - element.offsetWidth;
+            const maxY = 1.1 * container.offsetHeight - element.offsetHeight;
+            if (newX >= 0 && newX <= maxX && newY >= minY && newY <= maxY) {
+                element.style.left = newX + 'px';
+                element.style.top = newY + 'px';
+                const visualLeftRatio = newX / container.offsetWidth;
+                const visualTopRatio = newY / container.offsetHeight;
+                element.dataset.visualLeftRatio = visualLeftRatio;
+                element.dataset.visualTopRatio = visualTopRatio;
+                checkCardRegion(element);
+                snapToCard(element);
+                snapToPosition(element);
+                const snappedLeft = parseFloat(element.style.left);
+                const snappedTop = parseFloat(element.style.top);
+                element.dataset.visualLeftRatio = snappedLeft / container.offsetWidth;
+                element.dataset.visualTopRatio = snappedTop / container.offsetHeight;
+            }
+        }
     }
-	let selectionBox = null;
-	let selectedCards = [];
-	let initialMouseX, initialMouseY, initialCardPositions = [];
-	function startSelectionBox(e) {
-		selectionBox = document.createElement('div');
-		selectionBox.style.position = 'absolute';
-		selectionBox.style.border = '1px dashed #00f';
-		selectionBox.style.backgroundColor = 'rgba(0, 0, 255, 0.2)';
-		selectionBox.style.pointerEvents = 'none';
-		container.appendChild(selectionBox);
-		initialMouseX = e.clientX - container.getBoundingClientRect().left;
-		initialMouseY = e.clientY - container.getBoundingClientRect().top;
-		selectionBox.style.left = `${initialMouseX}px`;
-		selectionBox.style.top = `${initialMouseY}px`;
-		document.addEventListener('mousemove', resizeSelectionBox);
-		document.addEventListener('mouseup', finishSelectionBox);
-	}
-	function resizeSelectionBox(e) {
-		const currentMouseX = e.clientX - container.getBoundingClientRect().left;
-		const currentMouseY = e.clientY - container.getBoundingClientRect().top;
-		const width = Math.abs(currentMouseX - initialMouseX);
-		const height = Math.abs(currentMouseY - initialMouseY);
-		selectionBox.style.width = `${width}px`;
-		selectionBox.style.height = `${height}px`;
-		if (currentMouseX < initialMouseX) {
-			selectionBox.style.left = `${currentMouseX}px`;
-		}
-		if (currentMouseY < initialMouseY) {
-			selectionBox.style.top = `${currentMouseY}px`;
-		}
-		selectedCards = [];
-		allCards.forEach(card => {
-			const cardRect = card.getBoundingClientRect();
-			const boxRect = selectionBox.getBoundingClientRect();
-			if (
-				cardRect.left >= boxRect.left &&
-				cardRect.right <= boxRect.right &&
-				cardRect.top >= boxRect.top &&
-				cardRect.bottom <= boxRect.bottom
-			) {
-				selectedCards.push(card);
-			}
-		});
-	}
-	function finishSelectionBox() {
-		if (selectionBox) {
-			container.removeChild(selectionBox);
-			selectionBox = null;
-			initialCardPositions = selectedCards.map(card => ({
-				card,
-				initialX: card.offsetLeft,
-				initialY: card.offsetTop
-			}));
-			if (selectedCards.length > 0) {
-				document.addEventListener('mousemove', moveSelectedCards);
-				document.addEventListener('mouseup', stopMoveSelectedCards);
-			}
-		}
-	}
-	function moveSelectedCards(e) {
-		const dx = e.clientX - container.getBoundingClientRect().left - initialMouseX;
-		const dy = e.clientY - container.getBoundingClientRect().top - initialMouseY;
-		selectedCards.forEach(({ card, initialX, initialY }) => {
-			const newX = initialX + dx;
-			const newY = initialY + dy;
-			card.style.left = `${newX}px`;
-			card.style.top = `${newY}px`;
-		});
-	}
-	function stopMoveSelectedCards() {
-		document.removeEventListener('mousemove', moveSelectedCards);
-		document.removeEventListener('mouseup', stopMoveSelectedCards);
-		selectedCards = [];
-	}
-	container.addEventListener('mousedown', (e) => {
-		if (e.target === container) {
-			startSelectionBox(e);
-		}
-	});
+
+    function stopMove(e) {
+        isMoving = false;
+        clearTimeout(longPressTimeout);  // Clear long press if move occurred
+        document.removeEventListener('touchmove', moveElement);
+        document.removeEventListener('touchend', stopMove);
+    }
+
+    // Double tap for rotation
+    let lastTapTime = 0;
+    element.addEventListener('touchend', (e) => {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTapTime;
+        clearTimeout(longPressTimeout);  // Clear long press if touch ended
+        if (tapLength < 300 && tapLength > 0) {
+            // Double tap detected
+            element.style.zIndex = ++highestZIndex;
+            let rotation = parseInt(element.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
+            if (element.src === 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png') {} else {
+            if (CheckArea(element, 0)) {
+                element.style.transform = 'rotate(0deg)';
+                HomeDeck(element);
+                element.style.zIndex = 1;
+                element.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
+            } else {
+                if (rotation % 360 === 0) {
+                    rotation -= 90;
+                } else {
+                    rotation += 90;
+                }
+                rotation = (rotation - 360) % 360;
+                element.style.transform = `rotate(${rotation}deg)`;
+            }}
+        }
+        lastTapTime = currentTime;
+    });
+
+    element.dataset.originalImageUrl = element.src;
+}
+
+// Setup the selection box
+let selectionBox = null;
+let selectedCards = [];
+let initialTouchX, initialTouchY, initialCardPositions = [];
+
+function startSelectionBox(e) {
+    if (e.target === container) {
+        selectionBox = document.createElement('div');
+        selectionBox.style.position = 'absolute';
+        selectionBox.style.border = '1px dashed #00f';
+        selectionBox.style.backgroundColor = 'rgba(0, 0, 255, 0.2)';
+        selectionBox.style.pointerEvents = 'none';
+        container.appendChild(selectionBox);
+        initialTouchX = e.touches[0].clientX - container.getBoundingClientRect().left;
+        initialTouchY = e.touches[0].clientY - container.getBoundingClientRect().top;
+        selectionBox.style.left = `${initialTouchX}px`;
+        selectionBox.style.top = `${initialTouchY}px`;
+        document.addEventListener('touchmove', resizeSelectionBox);
+        document.addEventListener('touchend', finishSelectionBox);
+    }
+}
+
+function resizeSelectionBox(e) {
+    const currentTouchX = e.touches[0].clientX - container.getBoundingClientRect().left;
+    const currentTouchY = e.touches[0].clientY - container.getBoundingClientRect().top;
+    const width = Math.abs(currentTouchX - initialTouchX);
+    const height = Math.abs(currentTouchY - initialTouchY);
+    selectionBox.style.width = `${width}px`;
+    selectionBox.style.height = `${height}px`;
+    if (currentTouchX < initialTouchX) {
+        selectionBox.style.left = `${currentTouchX}px`;
+    }
+    if (currentTouchY < initialTouchY) {
+        selectionBox.style.top = `${currentTouchY}px`;
+    }
+    selectedCards = [];
+    allCards.forEach(card => {
+        const cardRect = card.getBoundingClientRect();
+        const boxRect = selectionBox.getBoundingClientRect();
+        if (
+            cardRect.left >= boxRect.left &&
+            cardRect.right <= boxRect.right &&
+            cardRect.top >= boxRect.top &&
+            cardRect.bottom <= boxRect.bottom
+        ) {
+            selectedCards.push(card);
+        }
+    });
+}
+
+function finishSelectionBox(e) {
+    if (selectionBox) {
+        container.removeChild(selectionBox);
+        selectionBox = null;
+        initialCardPositions = selectedCards.map(card => ({
+            card,
+            initialX: card.offsetLeft,
+            initialY: card.offsetTop
+        }));
+        if (selectedCards.length > 0) {
+            document.addEventListener('touchmove', moveSelectedCards);
+            document.addEventListener('touchend', stopMoveSelectedCards);
+        }
+    }
+}
+
+function moveSelectedCards(e) {
+    const dx = e.touches[0].clientX - container.getBoundingClientRect().left - initialTouchX;
+    const dy = e.touches[0].clientY - container.getBoundingClientRect().top - initialTouchY;
+    selectedCards.forEach(({ card, initialX, initialY }) => {
+        const newX = initialX + dx;
+        const newY = initialY + dy;
+        card.style.left = `${newX}px`;
+        card.style.top = `${newY}px`;
+    });
+}
+
+function stopMoveSelectedCards(e) {
+    document.removeEventListener('touchmove', moveSelectedCards);
+    document.removeEventListener('touchend', stopMoveSelectedCards);
+    selectedCards = [];
+}
+
+container.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1 && e.target === container) {
+        startSelectionBox(e);
+    }
+});
+
     function addDice() {
         const dice = document.createElement('img');
 		const containerWidth = container.offsetWidth;
@@ -485,26 +509,6 @@
         dice.dataset.visualTopRatio = defaultCenterYRatio;
         updateDicePosition(dice);
     }
-    function adjustCardSize() {
-        const cards = document.querySelectorAll('.card');
-		const containerWidth = container.offsetWidth;
-        cards.forEach(card => {
-            if (!card.src.includes(diceUrl)) { 
-                card.style.width = (containerWidth / 10) + 'px';
-                updateCardPosition(card);
-            }
-        });
-    }
-    function adjustDiceSize() {
-        const dice = document.querySelectorAll('.card');
-		const containerWidth = container.offsetWidth;
-        dice.forEach(d => {
-            if (d.src.includes(diceUrl)) { 
-                d.style.width = (containerWidth / 25) + 'px';
-                updateDicePosition(d);
-            }
-        });
-    }
     function adjustContainerSize() {
 		const backgroundImg = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Layout.png';
 		const img = new Image();
@@ -529,17 +533,30 @@
 			container.style.position = 'absolute';
 			container.style.left = '50%';
 			container.style.transform = 'translateX(-50%)';
-			Array.from(container.getElementsByClassName('card')).forEach(element => {
-				if (element.src.includes(diceUrl)) {
-					updateDicePosition(element);
-				} else {
-					updateCardPosition(element);
-				}
-			});
+			adjustCardSize();
+			adjustDiceSize();
 		};
-		adjustCardSize();
-		adjustDiceSize();
 	}
+	function adjustCardSize() {
+        const cards = document.querySelectorAll('.card');
+		const containerWidth = container.offsetWidth;
+        cards.forEach(card => {
+            if (!card.src.includes(diceUrl)) { 
+                card.style.width = (containerWidth / 10) + 'px';
+                updateCardPosition(card);
+            }
+        });
+    }
+    function adjustDiceSize() {
+        const dice = document.querySelectorAll('.card');
+		const containerWidth = container.offsetWidth;
+        dice.forEach(d => {
+            if (d.src.includes(diceUrl)) { 
+                d.style.width = (containerWidth / 25) + 'px';
+                updateDicePosition(d);
+            }
+        });
+    }
 	function updateDicePosition(dice) {
         const containerWidth = container.offsetWidth;
         const containerHeight = container.offsetHeight;
