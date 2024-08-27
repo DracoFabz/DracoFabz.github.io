@@ -21,7 +21,7 @@
     </style>
 </head>
 <body>
-    <div id="banner">DracoFabz.github.io - Deck Tester</div>
+    <div id="banner">Deck Tester V1.1</div>
     <div id="buttons-banner">
         <button class="button" id="donate-button">Donate</button>
         <button class="button" id="import-button">Import Deck</button>
@@ -583,99 +583,6 @@
 		card.style.transform = 'rotate(0deg)';
 		card.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
 		updateCardPosition(card);
-	}
-	function showCardInfo(event) {
-		const card = event.currentTarget;
-		const infoBox = document.createElement('div');
-		infoBox.style.position = 'absolute';
-		infoBox.style.left = `${card.offsetLeft + card.offsetWidth}px`;
-		infoBox.style.top = `${card.offsetTop}px`;
-		infoBox.style.width = `${2.1 * card.offsetHeight}px`;
-		infoBox.style.backgroundColor = 'rgba(128, 128, 128, 0.9)';
-		infoBox.style.color = 'white';
-		infoBox.style.fontSize = 'calc(1.0vw)';
-		infoBox.style.padding = '5px';
-		infoBox.style.display = 'flex';
-		infoBox.style.alignItems = 'flex-start';
-		infoBox.style.justifyContent = 'center';
-		infoBox.style.textAlign = 'left';
-		infoBox.style.borderRadius = '5px';
-		infoBox.style.boxShadow = '0 0 3px rgba(0, 0, 0, 1)';
-		infoBox.style.zIndex = 9999;
-		const combinedText = `${card.dataset.name}\n${card.dataset.mainEffect}\n${card.dataset.sourceEffect}`;
-		const numCharacters = combinedText.length;
-		const fontSize = parseFloat(infoBox.style.fontSize);
-		const boxWidth = parseFloat(infoBox.style.width);
-		const charsPerLine = Math.floor(boxWidth / fontSize);
-		const numLines = Math.ceil(numCharacters / charsPerLine);
-		const calculatedHeight = numLines * fontSize + 3 * fontSize;
-		infoBox.style.height = `${calculatedHeight}px`;
-		infoBox.innerHTML = `
-			<strong>${card.dataset.name}<br>
-			<br>
-			${card.dataset.mainEffect}<br>
-			<br>
-			${card.dataset.sourceEffect}
-		`;
-		container.appendChild(infoBox);
-		const removeInfoBox = () => infoBox.remove();
-		const removeTimeout = setTimeout(removeInfoBox, 60000);
-		function removeOnMouseMove() {
-			infoBox.remove();
-			clearTimeout(removeTimeout);
-			card.removeEventListener('mousemove', removeOnMouseMove);
-		}
-		card.addEventListener('mousemove', removeOnMouseMove);
-	}
-	function setupHoverInfo(card) {
-		let holdTimeout;
-		let isHolding = false;
-		let infoDisplayed = false;
-
-		// Touch start: begins the holding timer
-		card.addEventListener('touchstart', (e) => {
-			if (e.touches.length === 1) {  // Ensure it's a single touch
-				isHolding = true;
-				holdTimeout = setTimeout(() => {
-					if (isHolding) {
-						showCardInfo({ currentTarget: card });
-						infoDisplayed = true;
-					}
-				}, 2000);
-			}
-		});
-
-		// Touch end: if released before 2 seconds, cancel the info display
-		card.addEventListener('touchend', (e) => {
-			if (!infoDisplayed) {
-				isHolding = false;
-				clearTimeout(holdTimeout);
-			}
-		});
-
-		// Touch move: cancel the info display if the user moves their finger
-		card.addEventListener('touchmove', () => {
-			if (!infoDisplayed) {
-				isHolding = false;
-				clearTimeout(holdTimeout);
-			}
-		});
-
-		// Global listener to remove the info when interacting with anything else
-		document.addEventListener('touchstart', (e) => {
-			if (infoDisplayed && !card.contains(e.target)) {
-				hideCardInfo();  // You need to implement hideCardInfo to remove the displayed info
-				infoDisplayed = false;
-			}
-		});
-	}
-	function hideCardInfo() {
-		// Assuming that the card info is displayed in a specific element, e.g., with ID 'card-info'
-		const infoElement = document.getElementById('card-info');
-		if (infoElement) {
-			infoElement.style.display = 'none';  // Hide the element
-			infoElement.innerHTML = '';  // Clear the content
-		}
 	}
 </script>
 </body>
