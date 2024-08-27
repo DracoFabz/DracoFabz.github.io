@@ -21,7 +21,7 @@
     </style>
 </head>
 <body>
-    <div id="banner">Deck Tester - V1.2</div>
+    <div id="banner">Deck Tester - V1.3</div>
     <div id="buttons-banner">
         <button class="button" id="donate-button">Donate</button>
         <button class="button" id="import-button">Import Deck</button>
@@ -64,9 +64,17 @@
     adjustContainerSize();
 	});
     document.addEventListener('DOMContentLoaded', () => {
-        adjustContainerSize();
-        addDice(); 
-    });
+    adjustContainerSize();
+    addDice();
+
+    // Check if there's additional info in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const deckParam = urlParams.get('deck'); // 'deck' is the key we'll use in the URL
+
+    if (deckParam) {
+        loadDeckFromURL(deckParam);
+    }
+});
     loadCodeButton.addEventListener('click', () => {
 		let currentDeckType = "Deck"; // Default deck type
 		let input = document.getElementById('text-input').value.trim();
@@ -618,6 +626,16 @@
         card.style.left = newX + 'px';
         card.style.top = newY + 'px';
     }
+	function loadDeckFromURL(deckParam) {
+		// Split the deck param by '_'
+		const cardEntries = deckParam.split('_');
+		cardEntries.forEach(entry => {
+			const [num, code] = entry.split(' ');
+			if (!isNaN(num) && code) {
+				addCards(parseInt(num), code.toUpperCase().trim(), "Deck");
+			}
+		});
+	}
     function addCards(num, code, type) {
 		const apiUrl = `https://digimoncard.io/api/search.php?card=${code}`;
 			ConectToServer(apiUrl)
