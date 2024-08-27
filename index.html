@@ -21,7 +21,7 @@
     </style>
 </head>
 <body>
-    <div id="banner">Deck Tester</div>
+    <div id="banner">Deck Tester - V1.2</div>
     <div id="buttons-banner">
         <button class="button" id="donate-button">Donate</button>
         <button class="button" id="import-button">Import Deck</button>
@@ -707,47 +707,49 @@
 		updateCardPosition(card);
 	}
 	function showCardInfo(event) {
-		const card = event.currentTarget;
-		const infoBox = document.createElement('div');
-		infoBox.style.position = 'absolute';
-		infoBox.style.left = `${card.offsetLeft + card.offsetWidth}px`;
-		infoBox.style.top = `${card.offsetTop}px`;
-		infoBox.style.width = `${2.1 * card.offsetHeight}px`;
-		infoBox.style.backgroundColor = 'rgba(128, 128, 128, 0.9)';
-		infoBox.style.color = 'white';
-		infoBox.style.fontSize = 'calc(1.0vw)';
-		infoBox.style.padding = '5px';
-		infoBox.style.display = 'flex';
-		infoBox.style.alignItems = 'flex-start';
-		infoBox.style.justifyContent = 'center';
-		infoBox.style.textAlign = 'left';
-		infoBox.style.borderRadius = '5px';
-		infoBox.style.boxShadow = '0 0 3px rgba(0, 0, 0, 1)';
-		infoBox.style.zIndex = 9999;
-		const combinedText = `${card.dataset.name}\n${card.dataset.mainEffect}\n${card.dataset.sourceEffect}`;
-		const numCharacters = combinedText.length;
-		const fontSize = parseFloat(infoBox.style.fontSize);
-		const boxWidth = parseFloat(infoBox.style.width);
-		const charsPerLine = Math.floor(boxWidth / fontSize);
-		const numLines = Math.ceil(numCharacters / charsPerLine);
-		const calculatedHeight = numLines * fontSize + 3 * fontSize;
-		infoBox.style.height = `${calculatedHeight}px`;
-		infoBox.innerHTML = `
-			<strong>${card.dataset.name}<br>
-			<br>
-			${card.dataset.mainEffect}<br>
-			<br>
-			${card.dataset.sourceEffect}
-		`;
-		container.appendChild(infoBox);
-		const removeInfoBox = () => infoBox.remove();
-		const removeTimeout = setTimeout(removeInfoBox, 60000);
-		function removeOnMouseMove() {
-			infoBox.remove();
-			clearTimeout(removeTimeout);
-			card.removeEventListener('mousemove', removeOnMouseMove);
+		if (isSmartphone()) {} else {
+			const card = event.currentTarget;
+			const infoBox = document.createElement('div');
+			infoBox.style.position = 'absolute';
+			infoBox.style.left = `${card.offsetLeft + card.offsetWidth}px`;
+			infoBox.style.top = `${card.offsetTop}px`;
+			infoBox.style.width = `${2.1 * card.offsetHeight}px`;
+			infoBox.style.backgroundColor = 'rgba(128, 128, 128, 0.9)';
+			infoBox.style.color = 'white';
+			infoBox.style.fontSize = 'calc(1.0vw)';
+			infoBox.style.padding = '5px';
+			infoBox.style.display = 'flex';
+			infoBox.style.alignItems = 'flex-start';
+			infoBox.style.justifyContent = 'center';
+			infoBox.style.textAlign = 'left';
+			infoBox.style.borderRadius = '5px';
+			infoBox.style.boxShadow = '0 0 3px rgba(0, 0, 0, 1)';
+			infoBox.style.zIndex = 9999;
+			const combinedText = `${card.dataset.name}\n${card.dataset.mainEffect}\n${card.dataset.sourceEffect}`;
+			const numCharacters = combinedText.length;
+			const fontSize = parseFloat(infoBox.style.fontSize);
+			const boxWidth = parseFloat(infoBox.style.width);
+			const charsPerLine = Math.floor(boxWidth / fontSize);
+			const numLines = Math.ceil(numCharacters / charsPerLine);
+			const calculatedHeight = numLines * fontSize + 3 * fontSize;
+			infoBox.style.height = `${calculatedHeight}px`;
+			infoBox.innerHTML = `
+				<strong>${card.dataset.name}<br>
+				<br>
+				${card.dataset.mainEffect}<br>
+				<br>
+				${card.dataset.sourceEffect}
+			`;
+			container.appendChild(infoBox);
+			const removeInfoBox = () => infoBox.remove();
+			const removeTimeout = setTimeout(removeInfoBox, 60000);
+			function removeOnMouseMove() {
+				infoBox.remove();
+				clearTimeout(removeTimeout);
+				card.removeEventListener('mousemove', removeOnMouseMove);
+			}
+			card.addEventListener('mousemove', removeOnMouseMove);
 		}
-		card.addEventListener('mousemove', removeOnMouseMove);
 	}
 	function setupHoverInfo(card) {
 		if (isSmartphone()) {} else {
