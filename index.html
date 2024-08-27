@@ -21,12 +21,13 @@
     </style>
 </head>
 <body>
-    <div id="banner">Deck Tester - V1.5</div>
+    <div id="banner">Deck Tester - V1.6</div>
     <div id="buttons-banner">
         <button class="button" id="donate-button">Help</button>
         <button class="button" id="import-button">Import Deck</button>
         <button class="button" id="clear-deck-button">Clear Deck</button>
 		<button class="button" id="mulligan-button">Mulligan</button>
+		<button class="button" id="share-deck-button">Share Deck</button>
     </div>
     <div id="drag-container">
     </div>
@@ -47,6 +48,7 @@
     const loadCodeButton = document.getElementById('load-code-button');
 	const mulliganButton = document.getElementById('mulligan-button');
     const clearDeckButton = document.getElementById('clear-deck-button');
+	const shareDeckButton = document.getElementById('share-deck-button');
     const container = document.getElementById('drag-container');
     const defaultImageUrl = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
     const diceUrl = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png';
@@ -54,6 +56,8 @@
     donateButton.addEventListener('click', () => {
         alert('Load a deck from code or by link (example: dracofabz.github.io/?deck=4_BT14-033_D;2_BT14-034_E), if you double click a card in the trash, it gets to the bottom of the deck, any questions contact me (DracoFabz) on github or whatsapp +52999901788.');
     });
+	shareDeckButton.addEventListener('click', generateAndCopyDeckLink
+	);
     importButton.addEventListener('click', () => {
         popup.style.display = 'block';
     });
@@ -792,6 +796,50 @@
 				isHovered = true;
 			});
 		}
+	}
+	function generateAndCopyDeckLink() {
+		const cards = container.getElementsByClassName('card');
+		const deckEntries = [];
+
+		// Loop through all cards and build the deck string
+		Array.from(cards).forEach(card => {
+			if (!card.src.includes('dice')) { // Exclude dice
+				const cardCode = card.dataset.originalImageUrl.split('/').pop().split('.')[0];
+				const deckType = card.dataset.decktype === "Deck" ? "D" : "E";
+				deckEntries.push(`${1}_${cardCode}_${deckType}`);
+			}
+		});
+
+		// Group the same cards together and count them
+		const groupedEntries = deckEntries.reduce((acc, entry) => {
+			if (acc[entry]) {
+				acc[entry]++;
+			} else {
+				acc[entry] = 1;
+			}
+			return acc;
+		}, {});
+
+		// Create the final deck string
+		const finalDeckString = Object.keys(groupedEntries).map(entry => {
+			return `${groupedEntries[entry]}_${entry.split('_')[1]}_${entry.split('_')[2]}`;
+		}).join(';');
+
+		// Create the full URL
+		const fullUrl = `https://dracofabz.github.io/?deck=${finalDeckString}`;
+
+		// Copy to clipboard
+		copyToClipboard(fullUrl);
+	}
+
+	function copyToClipboard(text) {
+		const dummyInput = document.createElement('textarea');
+		document.body.appendChild(dummyInput);
+		dummyInput.value = text;
+		dummyInput.select();
+		document.execCommand('copy');
+		document.body.removeChild(dummyInput);
+		alert('Deck link copied to clipboard!');
 	}
 </script>
 </body>
