@@ -18,30 +18,8 @@
         #popup-buttons {text-align: center;}
         .tooltip {position: absolute;background-color: rgba(0, 0, 0, 0.7);color: white;padding: 5px;border-radius: 5px;display: none; /* Hidden by default */max-width: 200px;word-wrap: break-word;z-index: 1000;}
         .tooltip.show {display: block;}
-		#loading-container {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px;
-            border: 1px solid #000;
-			border-radius: 8px;
-            background-color: #ffffff;
-            padding: 10px;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
-            text-align: center;
-            box-sizing: border-box;
-        }
-        #loading-bar {
-            width: 0%;
-            height: 30px;
-            background-color: green;
-            color: white;
-            text-align: center;
-            line-height: 30px; /* Center text vertically */
-            margin-bottom: 10px;
-        }
+		#loading-container {display: none;position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);width: 300px;border: 1px solid #000;border-radius: 8px;background-color: #ffffff;padding: 10px;box-shadow: 0px 0px 10px rgba(0,0,0,0.2);text-align: center;box-sizing: border-box;}
+        #loading-bar {width: 0%;height: 30px;background-color: green;color: white;text-align: center;line-height: 30px; /* Center text vertically */margin-bottom: 10px;}
     </style>
 </head>
 <body>
@@ -111,26 +89,36 @@
     document.addEventListener('DOMContentLoaded', () => {
         adjustContainerSize();
         addDice();
-        initializeAreaCounts(Counters); // Updated to use initializeAreaCounts
+        initializeAreaCounts(Counters);
         const urlParams = new URLSearchParams(window.location.search);
         const deckParam = urlParams.get('deck');
         if (deckParam) {
             LoadURL(deckParam);
         }
     });
+	function isSmartphone() {
+		return /Mobi|Android/i.test(navigator.userAgent);
+	}
 	function ReCount() {
 		updateCountDisplays(Counters);
 	}
+	function TrowDice() {
+		const randomNumber = Math.floor(Math.random() * 6) + 1;
+		alert(`The dice rolled a ${randomNumber}`);
+	}
 	function updateCountDisplays(Counters) {
-        const cards = document.querySelectorAll('.card'); // Assuming cards have a class 'card'
-        Counters.forEach((area, index) => {
-            const count = Array.from(cards).filter(card => CheckArea(card, index)).length;
-            const countBox = document.querySelector(`.count-box-${index}`);
-            if (countBox) {
-                countBox.textContent = count;
-            }
-        });
-    }
+		const cards = document.querySelectorAll('.card');
+		Counters.forEach((area, index) => {
+			const count = Array.from(cards).filter(card => {
+				const isDice = card.src && card.src.includes(diceUrl);
+				return !isDice && CheckArea(card, index);
+			}).length;
+			const countBox = document.querySelector(`.count-box-${index}`);
+			if (countBox) {
+				countBox.textContent = count;
+			}
+		});
+	}
 	function initializeAreaCounts(Counters) {
 		Counters.forEach((area, index) => {
 			createCountDisplay(area, index);
@@ -144,10 +132,10 @@
 		countBox.style.position = 'absolute';
 		countBox.style.backgroundColor =  'rgba(128, 128, 128, 0.7)';
 		countBox.style.color = 'white';
-		countBox.style.fontSize = `${container.offsetWidth / 30}px`;
+		countBox.style.fontSize = `${container.offsetWidth / 40}px`;
 		countBox.style.padding = '1px';
 		countBox.style.borderRadius = '3px';
-		countBox.style.zIndex = '10000';
+		countBox.style.zIndex = '9999';
 		countBox.style.left = (area.leftRatio * 100) + '%';
 		countBox.style.top = (area.topRatio * 100) + '%';
 		countBox.textContent = '0';
@@ -244,7 +232,7 @@
 				if (tapLength < 300 && tapLength > 0) {
 					element.style.zIndex = ++highestZIndex;
 					let rotation = parseInt(element.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
-					if (element.src === 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png') {} else {
+					if (element.src === 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png') {TrowDice();} else {
 					if (CheckArea(element, 0)) {
 						element.style.transform = 'rotate(0deg)';
 						HomeDeck(element);
@@ -277,7 +265,7 @@
 			element.addEventListener('dblclick', () => {
 				element.style.zIndex = ++highestZIndex;
 				let rotation = parseInt(element.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
-				if (element.src === 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png') {} else {
+				if (element.src === 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png') {TrowDice();} else {
 				if (CheckArea(element, 0)) {
 					element.style.transform = 'rotate(0deg)';
 					HomeDeck(element);
@@ -295,22 +283,23 @@
 			});
 		}
 		function moveElement(e) {
-			if (isMoving) {
-				element.style.zIndex = ++highestZIndex;
-				const dx = isSmartphone() ? e.touches[0].clientX - startX : e.clientX - startX;
-				const dy = isSmartphone() ? e.touches[0].clientY - startY : e.clientY - startY;
-				const newX = initialX + dx;
-				const newY = initialY + dy;
-				const minY = 0;
-				const maxX = container.offsetWidth - element.offsetWidth;
-				const maxY = 1.1 * container.offsetHeight - element.offsetHeight;
-				if (newX >= 0 && newX <= maxX && newY >= minY && newY <= maxY) {
-					element.style.left = newX + 'px';
-					element.style.top = newY + 'px';
-					const visualLeftRatio = newX / container.offsetWidth;
-					const visualTopRatio = newY / container.offsetHeight;
-					element.dataset.visualLeftRatio = visualLeftRatio;
-					element.dataset.visualTopRatio = visualTopRatio;
+		if (isMoving) {
+			element.style.zIndex = ++highestZIndex;
+			const dx = isSmartphone() ? e.touches[0].clientX - startX : e.clientX - startX;
+			const dy = isSmartphone() ? e.touches[0].clientY - startY : e.clientY - startY;
+			const newX = initialX + dx;
+			const newY = initialY + dy;
+			const minY = 0;
+			const maxX = container.offsetWidth - element.offsetWidth;
+			const maxY = 1.1 * container.offsetHeight - element.offsetHeight;
+			if (newX >= 0 && newX <= maxX && newY >= minY && newY <= maxY) {
+				element.style.left = newX + 'px';
+				element.style.top = newY + 'px';
+				const visualLeftRatio = newX / container.offsetWidth;
+				const visualTopRatio = newY / container.offsetHeight;
+				element.dataset.visualLeftRatio = visualLeftRatio;
+				element.dataset.visualTopRatio = visualTopRatio;
+				if (!element.src || !element.src.includes(diceUrl)) {
 					CardRegion(element);
 					SnapCard(element);
 					SnapArea(element);
@@ -318,9 +307,12 @@
 					const snappedTop = parseFloat(element.style.top);
 					element.dataset.visualLeftRatio = snappedLeft / container.offsetWidth;
 					element.dataset.visualTopRatio = snappedTop / container.offsetHeight;
+				} else {
+					SnapDice(element);
 				}
 			}
 		}
+	}
 		function stopMove(e) {
 			isMoving = false;
 			clearTimeout(longPressTimeout);
@@ -417,7 +409,6 @@
 	}
 	
 	function CardRegion(card) {
-		if (card.src === 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png') {} else {
 		if (CheckArea(card, 1) || CheckArea(card, 2) || CheckArea(card, 3)) {
 			card.src = CardBack;} else {card.src = card.dataset.originalImageUrl || CardBack;}
 		if (CheckArea(card, 1)) {
@@ -425,12 +416,12 @@
 			if (rotation % 360 === 0) {rotation -= 90;}
 			rotation = (rotation - 360) % 360;
 			card.style.transform = `rotate(${rotation}deg)`;}
-		if (CheckArea(card, 5) || CheckArea(card, 0)) {
+		if (CheckArea(card, 5) || CheckArea(card, 0) || CheckArea(card, 2)) {
 			let rotation = parseInt(card.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
 			if (rotation % 360 === 0) {rotation -= 0;} else {rotation += 90;}
 			rotation = (rotation - 360) % 360;
 			card.style.transform = `rotate(${rotation}deg)`;
-		}}
+		}
 	}
     let highestZIndex = 1;
 	function SnapCard(card) {
@@ -484,10 +475,49 @@
 			}
 		});
 	}
-	function isSmartphone() {
-		return /Mobi|Android/i.test(navigator.userAgent);
+	function SnapDice(dice) {
+		const positions = [
+			{ x: 0.055, y: 0.055 }, //+10
+			{ x: 0.100, y: 0.055 }, //+09
+			{ x: 0.145, y: 0.055 }, //+08
+			{ x: 0.190, y: 0.055 }, //+07
+			{ x: 0.235, y: 0.055 }, //+06
+			{ x: 0.280, y: 0.055 }, //+05
+			{ x: 0.325, y: 0.055 }, //+04
+			{ x: 0.370, y: 0.055 }, //+03
+			{ x: 0.415, y: 0.055 }, //+02
+			{ x: 0.460, y: 0.055 }, //+01
+			{ x: 0.500, y: 0.055 }, //+00
+			{ x: 0.540, y: 0.055 }, //-01
+			{ x: 0.585, y: 0.055 }, //-02
+			{ x: 0.630, y: 0.055 }, //-03
+			{ x: 0.675, y: 0.055 }, //-04
+			{ x: 0.720, y: 0.055 }, //-05
+			{ x: 0.765, y: 0.055 }, //-06
+			{ x: 0.810, y: 0.055 }, //-07
+			{ x: 0.855, y: 0.055 }, //-08
+			{ x: 0.900, y: 0.055 }, //-09
+			{ x: 0.945, y: 0.055 } //-10
+		];
+		positions.forEach(position => {
+			const diceCenterX = dice.offsetLeft + dice.offsetWidth / 2;
+			const diceCenterY = dice.offsetTop + dice.offsetHeight / 2;
+			const distanceX = Math.abs(diceCenterX - (container.offsetWidth * position.x));
+			const distanceY = Math.abs(diceCenterY - (container.offsetHeight * position.y));
+			const thresholdX = dice.offsetWidth * 0.5;
+			const thresholdY = dice.offsetHeight * 2.5;
+			if (distanceX < thresholdX && distanceY < thresholdY) {
+				const snapX = (container.offsetWidth * position.x) - dice.offsetWidth / 2;
+				const snapY = (container.offsetHeight * position.y) - dice.offsetHeight / 2;
+				dice.style.left = `${snapX}px`;
+				dice.style.top = `${snapY}px`;
+				const visualLeftRatio = snapX / container.offsetWidth;
+				const visualTopRatio = snapY / container.offsetHeight;
+				dice.dataset.visualLeftRatio = visualLeftRatio;
+				dice.dataset.visualTopRatio = visualTopRatio;
+			}
+		});
 	}
-	
 	let selectionBox = null;
 	let selectedCards = [];
 	let initialMouseX, initialMouseY, initialCardPositions = [];
@@ -648,7 +678,7 @@
 	function CountSize() {
 		const counters = document.querySelectorAll('.counter');
 		const containerWidth = container.offsetWidth;
-		const fontSize = containerWidth / 30 + 'px';
+		const fontSize = containerWidth / 40 + 'px';
 		counters.forEach(counter => {
 			counter.style.fontSize = fontSize;
 		});
@@ -757,8 +787,9 @@
                 });
             popup.style.display = 'none';
         }
-    let mulliganTriggered = false;
+	let mulliganTriggered = false;
 	function updateLoadingBar(cardPromises) {
+		mulliganTriggered = false;
 		document.getElementById('loading-container').style.display = 'block';
 		const loadingBar = document.getElementById('loading-bar');
 		function updateProgress() {
@@ -881,7 +912,7 @@
 			infoBox.style.textAlign = 'left';
 			infoBox.style.borderRadius = '5px';
 			infoBox.style.boxShadow = '0 0 3px rgba(0, 0, 0, 1)';
-			infoBox.style.zIndex = 9999;
+			infoBox.style.zIndex = 10000;
 			const combinedText = `${card.dataset.name}\n${card.dataset.mainEffect}\n${card.dataset.sourceEffect}`;
 			const numCharacters = combinedText.length;
 			const fontSize = parseFloat(infoBox.style.fontSize);
@@ -922,14 +953,6 @@
 			});
 			card.addEventListener('mouseleave', () => {
 				isHovered = false;
-				clearTimeout(hoverTimeout);
-			});
-			card.addEventListener('click', () => {
-				isHovered = true;
-				clearTimeout(hoverTimeout);
-			});
-			card.addEventListener('touchstart', () => {
-				isHovered = true;
 				clearTimeout(hoverTimeout);
 			});
 			card.addEventListener('mousemove', () => {
