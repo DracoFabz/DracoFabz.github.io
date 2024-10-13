@@ -1,998 +1,200 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
+
 <head>
+	<link rel="icon" href="data:,">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deck Tester</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"
+        integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.21/jquery.csv.min.js"
+        integrity="sha512-Y8iWYJDo6HiTo5xtml1g4QqHtl/PO1w+dmUpQfQSOTqKNsMhExfyPN2ncNAe9JuJUSKzwK/b6oaNPop4MXzkwg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="script.js" type="text/javascript" defer></script>
+	<script src="getSheetData.js" type="text/javascript" defer></script>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <title>Azucar Al Gusto</title>
     <style>
-        body {width: 100%; height: 100%; overflow: auto;margin: 0; font-family: Arial, sans-serif; background-color: #f0f0f0;}
-        #banner {background-color: #3466af; color: #dedede; text-align: left; padding: 3px 10px; font-size: 15px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;  position: fixed; width: 100%; top: 0; left: 0; z-index: 1; box-sizing: border-box;}
-        #buttons-banner {background-color: #ffffff; text-align: left; padding: 5px 5px; position: fixed; width: 100%; top: 22px; left: 0; z-index: 1; box-sizing: border-box;}
-        .button {background-color: #3466af; color: #dedede; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; font-size: 12px; display: inline-block; margin: 0 1px; box-sizing: border-box;}
-        .button:hover, .button:active {background-color: #4976b7;}
-        #drag-container {position: fixed; top: 50px; left: 0px; right: 0px; bottom: 0px; background: url('https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Layout.png') no-repeat top left; background-size: cover; overflow: hidden; z-index: 0;}
-        .card {position: absolute; cursor: pointer; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 2; transition: transform 0.3s;}
-        #popup {display: none; position: fixed; top: 50%; left: 50%; font-size: 15px; transform: translate(-50%, -50%); background-color: #ffffff; border: 2px solid grey; padding: 20px; border-radius: 20px; width: 200px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); z-index: 3;}
-        #popup h2 {margin-top: 0; font-size: 15px;}
-        #text-input {width: 100%; height: 100px; border: 1px solid grey; border-radius: 10px; margin: 10px -10px; padding: 10px; resize: none;}
-        #popup-buttons {text-align: center;}
-        .tooltip {position: absolute;background-color: rgba(0, 0, 0, 0.7);color: white;padding: 5px;border-radius: 5px;display: none; /* Hidden by default */max-width: 200px;word-wrap: break-word;z-index: 1000;}
-        .tooltip.show {display: block;}
-		#loading-container {display: none;position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);width: 300px;border: 1px solid #000;border-radius: 8px;background-color: #ffffff;padding: 10px;box-shadow: 0px 0px 10px rgba(0,0,0,0.2);text-align: center;box-sizing: border-box;}
-        #loading-bar {width: 0%;height: 30px;background-color: green;color: white;text-align: center;line-height: 30px; /* Center text vertically */margin-bottom: 10px;}
+        body {
+            text-align: center;
+            background-color: #FFFBF1;
+            font-family: 'Book Antiqua', serif;
+            color: #6E3420;
+            position: relative; /* Enable positioning for heart placement */
+            overflow: auto; /* Allow scrolling */
+        }
+
+        /* Estilos para los corazones */
+        .heart {
+            position: fixed; /* Mantenerlos fijos en la ventana */
+            pointer-events: none; /* Evitar interferencia con clics */
+            z-index: 0; /* Asegurarse de que están detrás del contenido */
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 50px;
+            position: relative; /* Para asegurarse de que está encima de los corazones */
+            z-index: 1; /* Más alto que los corazones */
+        }
+
+        .banner {
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            background-color: #FFFBF1; /* Mantener background color */
+            position: relative; /* Enable positioning for the logo */
+            z-index: 1; /* Más alto que los corazones */
+        }
+
+        .banner img {
+            height: 90px; /* Logo height */
+            margin-right: 10px; /* Space between logo and title */
+        }
+
+        .dashboard-wrapper {
+            margin: auto;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-gap: 10px;
+            position: relative; /* Para asegurarse de que está encima de los corazones */
+            z-index: 1; /* Más alto que los corazones */
+        }
+
+		.panel {
+			text-align: left;
+			background-color: #FFFBF1; /* Color de fondo rosa */
+			border: 3px solid #6E3420; /* Borde color café */
+			box-shadow: 0 0 4px 1px rgba(143, 143, 143, .2); /* Sombra ligera */
+			padding: 10px;
+			border-radius: 15px; /* Bordes redondeados */
+		}
+
+        
+        #p2.panel {
+            grid-column: 1 / 3;
+        }
+		#p4.panel {
+            grid-column: 3 / 4;
+        }
+		#p3.panel {
+            grid-column: 1 / 4;
+        }
+		#p5.panel {
+            grid-column: 1 / 4;
+        }
+		#p1.panel {
+            grid-column: 1 / 4;
+        }
+
+        .bottom {
+            font-size: 5px;
+            margin-top: 15px;
+            position: relative; /* Para asegurarse de que está encima de los corazones */
+            z-index: 1; /* Más alto que los corazones */
+        }
+
+        .bottom a {
+            color: #333;
+            text-decoration: none;
+        }
     </style>
 </head>
+
 <body>
-    <div id="banner">Deck Tester - V1.8</div>
-    <div id="buttons-banner">
-        <button class="button" id="import-button">Add Deck</button>
-        <button class="button" id="clear-deck-button">Clear Deck</button>
-		<button class="button" id="mulligan-button">Mulligan</button>
-		<button class="button" id="share-deck-button">Share Deck</button>
-		<button class="button" id="help-button">?</button>
+    <div class="banner">
+        <img src="https://raw.githubusercontent.com/DracoFabz/DracoFabz.github.io/refs/heads/main/LogoUVM.png" alt="Logo Azucar al Gusto">
+        <h1>UVM</h1>
     </div>
-    <div id="drag-container">
-    </div>
-	<div id="loading-container">
-		<h2>Loading cards...</h2>
-        <div id="loading-bar">0%</div>
-        <label>
-            <input type="checkbox" id="mulligan-checkbox" checked> Mulligan when finish loading
-        </label>
-    </div>
-    <div id="popup">
-        <h2>Importing Deck</h2>
-        <p>Paste here the codes from Digimon.io</p>
-        <textarea id="text-input"></textarea>
-        <div id="popup-buttons">
-            <button class="button" id="load-code-button">Load Code</button>
-            <button class="button" id="go-back-button">Go Back</button>
+    <div class="dashboard-wrapper"> 
+        <div id="p2" class="panel">
+            <h2>Tabla 1</h2>
+            <div id="p2Chart"></div>
+				<script type="text/javascript">
+				google.charts.load("current", { packages: ["BarChart"] });
+				</script>
+        </div>
+		<div id="p4" class="panel">
+            <h2>Tabla 2</h2>
+            <div id="p4Chart"></div>
+				<script type="text/javascript">
+				google.charts.load("current", { packages: ["PieChart"] });
+				</script>
+        </div>
+        <div id="p3" class="panel">
+            <h2>Tabla 3</h2>
+            <div id="p3Chart"></div>
+				<script type="text/javascript">
+				google.charts.load("current", { packages: ["Column"] });
+				</script>
+        </div>
+        
+        <div id="p5" class="panel">
+            <h2>Tabla 4</h2>
+            <div id="p5Chart"></div>
+				<script type="text/javascript">
+				google.charts.load("current", { packages: ["calendar"] });
+				</script>
         </div>
     </div>
-<script>
-    const HelpButton = document.getElementById('help-button');
-    const importButton = document.getElementById('import-button');
-    const popup = document.getElementById('popup');
-    const goBackButton = document.getElementById('go-back-button');
-    const loadCodeButton = document.getElementById('load-code-button');
-	const mulliganButton = document.getElementById('mulligan-button');
-    const clearDeckButton = document.getElementById('clear-deck-button');
-	const shareDeckButton = document.getElementById('share-deck-button');
-    const container = document.getElementById('drag-container');
-    const CardBack = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
-    const diceUrl = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png';
-	const Counters = [
-        { leftRatio: 0.96, topRatio: 0.418 }, // Trash Area [0]
-        { leftRatio: 0.005, topRatio: 0.215 }, // Security Area [1]
-        { leftRatio: 0.96, topRatio: 0.13 }, // Deck Area [2]
-        { leftRatio: 0.035, topRatio: 0.63 }, // Egg Area [3]
-		{ leftRatio: 0.96, topRatio: 0.84 } // Hand Area [4]
-    ];
-	let currentDeckType = "Deck";
-    HelpButton.addEventListener('click', () => {
-        alert('Load a deck from code or by link (example: dracofabz.github.io/?deck=4_BT14-033_D;2_BT14-034_E), if you double click a card in the trash, it gets to the bottom of the deck, any questions contact me (DracoFabz) on github or whatsapp +52999901788.');
-    });
-	shareDeckButton.addEventListener('click', ShareLink);
-	mulliganButton.addEventListener('click', Mulligan);
-	loadCodeButton.addEventListener('click', LoadDeck);
-	clearDeckButton.addEventListener('click', ClearDeck);
-	setInterval(ReCount, 100);
-    importButton.addEventListener('click', () => {
-        popup.style.display = 'block';
-    });
-    goBackButton.addEventListener('click', () => {
-        popup.style.display = 'none';
-    });
-	window.addEventListener('resize', () => {
-    adjustContainerSize();
-	});
-    document.addEventListener('DOMContentLoaded', () => {
-        adjustContainerSize();
-        addDice();
-        initializeAreaCounts(Counters);
-        const urlParams = new URLSearchParams(window.location.search);
-        const deckParam = urlParams.get('deck');
-        if (deckParam) {
-            LoadURL(deckParam);
-        }
-    });
-	function isSmartphone() {
-		return /Mobi|Android/i.test(navigator.userAgent);
-	}
-	function ReCount() {
-		updateCountDisplays(Counters);
-	}
-	function TrowDice() {
-		const randomNumber = Math.floor(Math.random() * 6) + 1;
-		alert(`The dice rolled a ${randomNumber}`);
-	}
-	function updateCountDisplays(Counters) {
-		const cards = document.querySelectorAll('.card');
-		Counters.forEach((area, index) => {
-			const count = Array.from(cards).filter(card => {
-				const isDice = card.src && card.src.includes(diceUrl);
-				return !isDice && CheckArea(card, index);
-			}).length;
-			const countBox = document.querySelector(`.count-box-${index}`);
-			if (countBox) {
-				countBox.textContent = count;
-			}
-		});
-	}
-	function initializeAreaCounts(Counters) {
-		Counters.forEach((area, index) => {
-			createCountDisplay(area, index);
-		});
-		updateCountDisplays(Counters);
-	}
-	function createCountDisplay(area, index) {
-		const container = document.getElementById('drag-container');
-		const countBox = document.createElement('div');
-		countBox.className = `count-box-${index} counter`;
-		countBox.style.position = 'absolute';
-		countBox.style.backgroundColor =  'rgba(128, 128, 128, 0.7)';
-		countBox.style.color = 'white';
-		countBox.style.fontSize = `${container.offsetWidth / 40}px`;
-		countBox.style.padding = '1px';
-		countBox.style.borderRadius = '3px';
-		countBox.style.zIndex = '9999';
-		countBox.style.left = (area.leftRatio * 100) + '%';
-		countBox.style.top = (area.topRatio * 100) + '%';
-		countBox.textContent = '0';
-		container.appendChild(countBox);
-		return countBox;
-	}
-	function CheckArea(card, areaIndex) {
-		const containerWidth = container.offsetWidth;
-		const containerHeight = container.offsetHeight;
-		const cardRect = card.getBoundingClientRect();
-		const containerRect = container.getBoundingClientRect();
-		const cardLeft = cardRect.left - containerRect.left;
-		const cardTop = cardRect.top - containerRect.top;
-		const cardRight = cardLeft + card.offsetWidth;
-		const cardBottom = cardTop + card.offsetHeight;
-		const areas = [
-			{ // Trash Area [0]
-				left: containerRect.width * 0.92,
-				right: containerRect.width,
-				top: containerRect.height * 0.58,
-				bottom: containerRect.height * 0.60
-			},
-			{ // Security Area [1]
-				left: 0,
-				right: containerRect.width * 0.12,
-				top: containerRect.height * 0.3,
-				bottom: containerRect.height * 0.45
-			},
-			{ // Deck Area [2]
-				left: containerRect.width * 0.92,
-				right: containerRect.width,
-				top: containerRect.height * 0.25,
-				bottom: containerRect.height * 0.27
-			},
-			{ // Egg Area [3]
-				left: containerRect.width * 0.13,
-				right: containerRect.width * 0.11,
-				top: containerRect.height * 0.87,
-				bottom: containerRect.height
-			},
-			{ // Hand Area [4]
-				left: containerRect.width * 0.4,
-				right: containerRect.width,
-				top: containerRect.height * 0.93,
-				bottom: containerRect.height
-			},
-			{ // Raising Area [5]
-				left: containerRect.width * 0.13,
-				right: containerRect.width * 0.19,
-				top: containerRect.height * 0.87,
-				bottom: containerRect.height
-			},
-			{ // Board Area [6]
-				left: containerRect.width * 0,
-				right: containerRect.width,
-				top: containerRect.height * 0,
-				bottom: containerRect.height
-			}
-			// Add more areas as needed
-		];
-		const area = areas[areaIndex];
-		const isInArea = cardRight > area.left && cardLeft < area.right &&
-						 cardBottom > area.top && cardTop < area.bottom;
-		return isInArea;
-	}
-	function makeDraggable(element) {
-		let isMoving = false;
-		let startX, startY, initialX, initialY;
-		let longPressTimeout;
-		let lastTapTime = 0;
-		if (isSmartphone()) {
-			element.addEventListener('touchstart', (e) => {
-				if (e.touches.length === 1) {
-					e.preventDefault();
-					isMoving = true;
-					startX = e.touches[0].clientX;
-					startY = e.touches[0].clientY;
-					initialX = element.offsetLeft;
-					initialY = element.offsetTop;
-					highestZIndex++;
-					element.style.zIndex = highestZIndex;
-					longPressTimeout = setTimeout(() => {
-						ShowInfo({ currentTarget: element });
-					}, 2000);
 
-					document.addEventListener('touchmove', moveElement);
-					document.addEventListener('touchend', stopMove);
-				}
-			});
-			element.addEventListener('touchend', (e) => {
-				const currentTime = new Date().getTime();
-				const tapLength = currentTime - lastTapTime;
-				clearTimeout(longPressTimeout);
-				if (tapLength < 300 && tapLength > 0) {
-					element.style.zIndex = ++highestZIndex;
-					let rotation = parseInt(element.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
-					if (element.src === 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png') {TrowDice();} else {
-					if (CheckArea(element, 0)) {
-						element.style.transform = 'rotate(0deg)';
-						HomeDeck(element);
-						element.style.zIndex = 1;
-						element.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
-					} else {
-						if (rotation % 360 === 0) {
-							rotation -= 90;
-						} else {
-							rotation += 90;
-						}
-						rotation = (rotation - 360) % 360;
-						element.style.transform = `rotate(${rotation}deg)`;
-					}}
-				}
-				lastTapTime = currentTime;
-			});
-		} else {
-			element.addEventListener('mousedown', (e) => {
-				isMoving = true;
-				startX = e.clientX;
-				startY = e.clientY;
-				initialX = element.offsetLeft;
-				initialY = element.offsetTop;
-				highestZIndex++;
-				element.style.zIndex = highestZIndex;
-				document.addEventListener('mousemove', moveElement);
-				document.addEventListener('mouseup', stopMove);
-			});
-			element.addEventListener('dblclick', () => {
-				element.style.zIndex = ++highestZIndex;
-				let rotation = parseInt(element.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
-				if (element.src === 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/dice.png') {TrowDice();} else {
-				if (CheckArea(element, 0)) {
-					element.style.transform = 'rotate(0deg)';
-					HomeDeck(element);
-					element.style.zIndex = 1;
-					element.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
-				} else {
-					if (rotation % 360 === 0) {
-						rotation -= 90;
-					} else {
-						rotation += 90;
-					}
-					rotation = (rotation - 360) % 360;
-					element.style.transform = `rotate(${rotation}deg)`;
-				}}
-			});
-		}
-		function moveElement(e) {
-		if (isMoving) {
-			element.style.zIndex = ++highestZIndex;
-			const dx = isSmartphone() ? e.touches[0].clientX - startX : e.clientX - startX;
-			const dy = isSmartphone() ? e.touches[0].clientY - startY : e.clientY - startY;
-			const newX = initialX + dx;
-			const newY = initialY + dy;
-			const minY = 0;
-			const maxX = container.offsetWidth - element.offsetWidth;
-			const maxY = 1.1 * container.offsetHeight - element.offsetHeight;
-			if (newX >= 0 && newX <= maxX && newY >= minY && newY <= maxY) {
-				element.style.left = newX + 'px';
-				element.style.top = newY + 'px';
-				const visualLeftRatio = newX / container.offsetWidth;
-				const visualTopRatio = newY / container.offsetHeight;
-				element.dataset.visualLeftRatio = visualLeftRatio;
-				element.dataset.visualTopRatio = visualTopRatio;
-				if (!element.src || !element.src.includes(diceUrl)) {
-					CardRegion(element);
-					SnapCard(element);
-					SnapArea(element);
-					const snappedLeft = parseFloat(element.style.left);
-					const snappedTop = parseFloat(element.style.top);
-					element.dataset.visualLeftRatio = snappedLeft / container.offsetWidth;
-					element.dataset.visualTopRatio = snappedTop / container.offsetHeight;
-				} else {
-					SnapDice(element);
-				}
-			}
-		}
-	}
-		function stopMove(e) {
-			isMoving = false;
-			clearTimeout(longPressTimeout);
-			document.removeEventListener(isSmartphone() ? 'touchmove' : 'mousemove', moveElement);
-			document.removeEventListener(isSmartphone() ? 'touchend' : 'mouseup', stopMove);
-		}
-		element.dataset.originalImageUrl = element.src;
-	}
-    function ClearDeck() {
-		const elements = container.children;
-        for (let i = elements.length - 1; i >= 0; i--) {
-            const element = elements[i];
-            if (!element.src.includes(diceUrl)) {
-                container.removeChild(element);}}
-    }
-	function Mulligan() {
-		const cards = Array.from(container.children).filter(child => child.tagName === 'IMG' && !child.src.includes(diceUrl));
-		Shuffling(cards);
-		const maxZIndex = cards.length;
-		cards.forEach((card, index) => {
-			card.style.zIndex = maxZIndex - index;
-		});
-		const eggDeckCards = cards.filter(card => card.dataset.decktype === 'Egg');
-		const mainDeckCards = cards.filter(card => card.dataset.decktype !== 'Egg');
-		eggDeckCards.forEach(card => {
-			HomeDeck(card);
-		});
-		const securityCards = mainDeckCards.slice(0, 5);
-		securityCards.forEach(card => {
-			card.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
-			card.style.transition = 'none';
-			card.style.transform = 'rotate(-90deg)';
-		});
-		MoveTo(securityCards, {
-			left: container.offsetWidth * 0.04,
-			top: container.offsetHeight * 0.39,
-			xSpacing: 0.05,
-			ySpacing: -0.22
-		});
-		const handCards = mainDeckCards.slice(5, 10);
-		handCards.forEach(card => {
-			card.src = card.dataset.originalImageUrl;
-			card.style.transition = 'none';
-			card.style.transform = 'rotate(0deg)';
-		});
-		MoveTo(handCards, {
-			left: container.offsetWidth * 0.5,
-			top: container.offsetHeight * 0.84,
-			xSpacing: 0.8,
-			ySpacing: 0
-		});
-		mainDeckCards.slice(10).forEach(card => {
-			card.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
-			card.style.transition = 'none';
-			card.style.transform = 'rotate(0deg)';
-			HomeDeck(card);
-		});
-	}
-	function Shuffling(array) {
-		const shuffle = (arr) => {
-			for (let i = arr.length - 1; i > 0; i--) {
-				const j = Math.floor(Math.random() * (i + 1));
-				[arr[i], arr[j]] = [arr[j], arr[i]];}};
-			for (let k = 0; k < 3; k++) {shuffle(array);}
-	}
-	function MoveTo(cards, area) {
-		let highestZIndex = 1;
-		cards.forEach((card, i) => {
-			const cardWidth = card.offsetWidth;
-			const cardHeight = card.offsetHeight;
-			const targetX = area.left + (i * (cardWidth * area.xSpacing));
-			const targetY = area.top + (i * (cardHeight * area.ySpacing));
-			const initialX = card.offsetLeft;
-			const initialY = card.offsetTop;
-			const initialVisualLeftRatio = initialX / container.offsetWidth;
-			const initialVisualTopRatio = initialY / container.offsetHeight;
-			card.style.zIndex = ++highestZIndex;
-			card.style.transition = 'left 0.2s ease, top 0.2s ease';
-			card.style.left = `${targetX}px`;
-			card.style.top = `${targetY}px`;
-			const onTransitionEnd = () => {
-				const newVisualLeftRatio = targetX / container.offsetWidth;
-				const newVisualTopRatio = targetY / container.offsetHeight;
-				const hasMoved = initialX !== targetX || initialY !== targetY;
-				if (hasMoved) {
-					card.dataset.visualLeftRatio = newVisualLeftRatio;
-					card.dataset.visualTopRatio = newVisualTopRatio;
-				}
-				card.style.transition = '';
-				card.removeEventListener('transitionend', onTransitionEnd);
-			};
-			card.addEventListener('transitionend', onTransitionEnd);
-		});
-	}
-	
-	function CardRegion(card) {
-		if (CheckArea(card, 1) || CheckArea(card, 2) || CheckArea(card, 3)) {
-			card.src = CardBack;} else {card.src = card.dataset.originalImageUrl || CardBack;}
-		if (CheckArea(card, 1)) {
-			let rotation = parseInt(card.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
-			if (rotation % 360 === 0) {rotation -= 90;}
-			rotation = (rotation - 360) % 360;
-			card.style.transform = `rotate(${rotation}deg)`;}
-		if (CheckArea(card, 5) || CheckArea(card, 0) || CheckArea(card, 2)) {
-			let rotation = parseInt(card.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
-			if (rotation % 360 === 0) {rotation -= 0;} else {rotation += 90;}
-			rotation = (rotation - 360) % 360;
-			card.style.transform = `rotate(${rotation}deg)`;
-		}
-	}
-    let highestZIndex = 1;
-	function SnapCard(card) {
-		const allCards = document.querySelectorAll('.card');
-		allCards.forEach(otherCard => {
-			if (card !== otherCard) {
-				const cardCenterX = card.offsetLeft + card.offsetWidth / 2;
-				const cardCenterY = card.offsetTop + card.offsetHeight / 2;
-				const otherCardCenterX = otherCard.offsetLeft + otherCard.offsetWidth / 2;
-				const otherCardCenterY = (otherCard.offsetTop + otherCard.offsetHeight / 2) * 0.93;
-				const distanceX = Math.abs(cardCenterX - otherCardCenterX);
-				const distanceY = Math.abs(cardCenterY - otherCardCenterY);
-				const thresholdX = otherCard.offsetWidth * 0.1;
-				const thresholdY = otherCard.offsetHeight * 0.08;
-				if (distanceX < thresholdX && distanceY < thresholdY) {
-					const snapX = otherCard.offsetLeft;
-					const snapY = otherCard.offsetTop - otherCard.offsetHeight * 0.16;
-					card.style.left = `${snapX}px`;
-					card.style.top = `${snapY}px`;
-					const visualLeftRatio = snapX / container.offsetWidth;
-					const visualTopRatio = snapY / container.offsetHeight;
-					card.dataset.visualLeftRatio = visualLeftRatio;
-					card.dataset.visualTopRatio = visualTopRatio;
-				}
-			}
-		});
-	}
-	function SnapArea(card) {
-		const positions = [
-			{ x: 0.115, y: 0.825 }, //Digitama deck
-			{ x: 0.237, y: 0.825 }, //Hatched egg
-			{ x: 0.9163, y: 0.255 }, //Main Deck
-			{ x: 0.9163, y: 0.543 } //Trash
-		];
-		positions.forEach(position => {
-			const cardCenterX = card.offsetLeft + card.offsetWidth / 2;
-			const cardCenterY = card.offsetTop + card.offsetHeight / 2;
-			const distanceX = Math.abs(cardCenterX - (container.offsetWidth * position.x));
-			const distanceY = Math.abs(cardCenterY - (container.offsetHeight * position.y));
-			const thresholdX = card.offsetWidth * 0.12;
-			const thresholdY = card.offsetHeight * 0.1;
-			if (distanceX < thresholdX && distanceY < thresholdY) {
-				const snapX = (container.offsetWidth * position.x) - card.offsetWidth / 2;
-				const snapY = (container.offsetHeight * position.y) - card.offsetHeight / 2;
-				card.style.left = `${snapX}px`;
-				card.style.top = `${snapY}px`;
-				const visualLeftRatio = snapX / container.offsetWidth;
-				const visualTopRatio = snapY / container.offsetHeight;
-				card.dataset.visualLeftRatio = visualLeftRatio;
-				card.dataset.visualTopRatio = visualTopRatio;
-			}
-		});
-	}
-	function SnapDice(dice) {
-		const positions = [
-			{ x: 0.055, y: 0.055 }, //+10
-			{ x: 0.100, y: 0.055 }, //+09
-			{ x: 0.145, y: 0.055 }, //+08
-			{ x: 0.190, y: 0.055 }, //+07
-			{ x: 0.235, y: 0.055 }, //+06
-			{ x: 0.280, y: 0.055 }, //+05
-			{ x: 0.325, y: 0.055 }, //+04
-			{ x: 0.370, y: 0.055 }, //+03
-			{ x: 0.415, y: 0.055 }, //+02
-			{ x: 0.460, y: 0.055 }, //+01
-			{ x: 0.500, y: 0.055 }, //+00
-			{ x: 0.540, y: 0.055 }, //-01
-			{ x: 0.585, y: 0.055 }, //-02
-			{ x: 0.630, y: 0.055 }, //-03
-			{ x: 0.675, y: 0.055 }, //-04
-			{ x: 0.720, y: 0.055 }, //-05
-			{ x: 0.765, y: 0.055 }, //-06
-			{ x: 0.810, y: 0.055 }, //-07
-			{ x: 0.855, y: 0.055 }, //-08
-			{ x: 0.900, y: 0.055 }, //-09
-			{ x: 0.945, y: 0.055 } //-10
-		];
-		positions.forEach(position => {
-			const diceCenterX = dice.offsetLeft + dice.offsetWidth / 2;
-			const diceCenterY = dice.offsetTop + dice.offsetHeight / 2;
-			const distanceX = Math.abs(diceCenterX - (container.offsetWidth * position.x));
-			const distanceY = Math.abs(diceCenterY - (container.offsetHeight * position.y));
-			const thresholdX = dice.offsetWidth * 0.5;
-			const thresholdY = dice.offsetHeight * 2.5;
-			if (distanceX < thresholdX && distanceY < thresholdY) {
-				const snapX = (container.offsetWidth * position.x) - dice.offsetWidth / 2;
-				const snapY = (container.offsetHeight * position.y) - dice.offsetHeight / 2;
-				dice.style.left = `${snapX}px`;
-				dice.style.top = `${snapY}px`;
-				const visualLeftRatio = snapX / container.offsetWidth;
-				const visualTopRatio = snapY / container.offsetHeight;
-				dice.dataset.visualLeftRatio = visualLeftRatio;
-				dice.dataset.visualTopRatio = visualTopRatio;
-			}
-		});
-	}
-	let selectionBox = null;
-	let selectedCards = [];
-	let initialMouseX, initialMouseY, initialCardPositions = [];
-	function startSelectionBox(e) {
-		selectionBox = document.createElement('div');
-		selectionBox.style.position = 'absolute';
-		selectionBox.style.border = '1px dashed #00f';
-		selectionBox.style.backgroundColor = 'rgba(0, 0, 255, 0.2)';
-		selectionBox.style.pointerEvents = 'none';
-		container.appendChild(selectionBox);
-		initialMouseX = e.clientX - container.getBoundingClientRect().left;
-		initialMouseY = e.clientY - container.getBoundingClientRect().top;
-		selectionBox.style.left = `${initialMouseX}px`;
-		selectionBox.style.top = `${initialMouseY}px`;
-		document.addEventListener('mousemove', resizeSelectionBox);
-		document.addEventListener('mouseup', finishSelectionBox);
-	}
-	function resizeSelectionBox(e) {
-		const currentMouseX = e.clientX - container.getBoundingClientRect().left;
-		const currentMouseY = e.clientY - container.getBoundingClientRect().top;
-		const width = Math.abs(currentMouseX - initialMouseX);
-		const height = Math.abs(currentMouseY - initialMouseY);
-		selectionBox.style.width = `${width}px`;
-		selectionBox.style.height = `${height}px`;
-		if (currentMouseX < initialMouseX) {
-			selectionBox.style.left = `${currentMouseX}px`;
-		}
-		if (currentMouseY < initialMouseY) {
-			selectionBox.style.top = `${currentMouseY}px`;
-		}
-		selectedCards = [];
-		allCards.forEach(card => {
-			const cardRect = card.getBoundingClientRect();
-			const boxRect = selectionBox.getBoundingClientRect();
-			if (
-				cardRect.left >= boxRect.left &&
-				cardRect.right <= boxRect.right &&
-				cardRect.top >= boxRect.top &&
-				cardRect.bottom <= boxRect.bottom
-			) {
-				selectedCards.push(card);
-			}
-		});
-	}
-	function finishSelectionBox() {
-		if (selectionBox) {
-			container.removeChild(selectionBox);
-			selectionBox = null;
-			initialCardPositions = selectedCards.map(card => ({
-				card,
-				initialX: card.offsetLeft,
-				initialY: card.offsetTop
-			}));
-			if (selectedCards.length > 0) {
-				document.addEventListener('mousemove', moveSelectedCards);
-				document.addEventListener('mouseup', stopMoveSelectedCards);
-			}
-		}
-	}
-	function moveSelectedCards(e) {
-		const dx = e.clientX - container.getBoundingClientRect().left - initialMouseX;
-		const dy = e.clientY - container.getBoundingClientRect().top - initialMouseY;
-		selectedCards.forEach(({ card, initialX, initialY }) => {
-			const newX = initialX + dx;
-			const newY = initialY + dy;
-			card.style.left = `${newX}px`;
-			card.style.top = `${newY}px`;
-		});
-	}
-	function stopMoveSelectedCards() {
-		document.removeEventListener('mousemove', moveSelectedCards);
-		document.removeEventListener('mouseup', stopMoveSelectedCards);
-		selectedCards = [];
-	}
-	container.addEventListener('mousedown', (e) => {
-		if (isSmartphone()) {} else {
-			if (e.target === container) {
-				startSelectionBox(e);
-			}
-		}
-	});
-    function addDice() {
-        const dice = document.createElement('img');
-		const containerWidth = container.offsetWidth;
-        dice.src = diceUrl;
-        dice.className = 'card';
-        dice.style.width = (containerWidth / 25) + 'px';
-        dice.style.height = 'auto';
-        dice.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-        container.appendChild(dice);
-        makeDraggable(dice);
-        HomeDice(dice);
-    }
-    function HomeDice(dice) {
-        const containerWidth = container.offsetWidth;
-        const containerHeight = container.offsetHeight;
-        const diceWidth = dice.offsetWidth;
-        const diceHeight = dice.offsetHeight;
-        const defaultCenterXRatio = 0.483;
-        const defaultCenterYRatio = 0.024;
-        dice.dataset.defaultCenterXRatio = defaultCenterXRatio;
-        dice.dataset.defaultCenterYRatio = defaultCenterYRatio;
-        dice.dataset.visualLeftRatio = defaultCenterXRatio;
-        dice.dataset.visualTopRatio = defaultCenterYRatio;
-        DicePlace(dice);
-    }
-    function adjustContainerSize() {
-		const backgroundImg = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Layout.png';
-		const img = new Image();
-		img.src = backgroundImg;
-		img.onload = function() {
-			const bannerHeight = document.getElementById('banner').offsetHeight;
-			const buttonsBannerHeight = document.getElementById('buttons-banner').offsetHeight;
-			const imgWidth = img.width;
-			const imgHeight = img.height;
-			const windowWidth = window.innerWidth;
-			const windowHeight = window.innerHeight - (bannerHeight + buttonsBannerHeight);
-			const imgAspectRatio = imgWidth / imgHeight;
-			const windowAspectRatio = windowWidth / windowHeight;
-			let newWidth, newHeight;
-			if (windowAspectRatio > imgAspectRatio) {
-				newHeight = windowHeight;
-				newWidth = newHeight * imgAspectRatio;
-			} else {
-				newWidth = windowWidth;
-				newHeight = newWidth / imgAspectRatio;
-			}
-			container.style.width = `${newWidth}px`;
-			container.style.height = `${newHeight}px`;
-			container.style.position = 'absolute';
-			container.style.left = '50%';
-			container.style.transform = 'translateX(-50%)';
-			CardSize();
-			DiceSize();
-			CountSize();
-		};
-	}
-	function CardSize() {
-        const cards = document.querySelectorAll('.card');
-		const containerWidth = container.offsetWidth;
-        cards.forEach(card => {
-            if (!card.src.includes(diceUrl)) { 
-                card.style.width = (containerWidth / 10) + 'px';
-                CardPlace(card);
-            }
-        });
-    }
-    function DiceSize() {
-        const dice = document.querySelectorAll('.card');
-		const containerWidth = container.offsetWidth;
-        dice.forEach(d => {
-            if (d.src.includes(diceUrl)) { 
-                d.style.width = (containerWidth / 25) + 'px';
-                DicePlace(d);
-            }
-        });
-    }
-	function CountSize() {
-		const counters = document.querySelectorAll('.counter');
-		const containerWidth = container.offsetWidth;
-		const fontSize = containerWidth / 40 + 'px';
-		counters.forEach(counter => {
-			counter.style.fontSize = fontSize;
-		});
-	}
-	function DicePlace(dice) {
-        const containerWidth = container.offsetWidth;
-        const containerHeight = container.offsetHeight;
-        const defaultCenterXRatio = parseFloat(dice.dataset.defaultCenterXRatio);
-        const defaultCenterYRatio = parseFloat(dice.dataset.defaultCenterYRatio);
-        const visualLeftRatio = parseFloat(dice.dataset.visualLeftRatio);
-        const visualTopRatio = parseFloat(dice.dataset.visualTopRatio);
-        const diceWidth = dice.offsetWidth;
-        const diceHeight = dice.offsetHeight;
-        const newX = visualLeftRatio * containerWidth - defaultCenterXRatio;
-        const newY = visualTopRatio * containerHeight - defaultCenterYRatio;
-        dice.style.left = newX + 'px';
-        dice.style.top = newY + 'px';
-    }
-	function CardPlace(card) {
-        const containerWidth = container.offsetWidth;
-        const containerHeight = container.offsetHeight;
-        const defaultCenterXRatio = parseFloat(card.dataset.defaultCenterXRatio);
-        const defaultCenterYRatio = parseFloat(card.dataset.defaultCenterYRatio);
-        const visualLeftRatio = parseFloat(card.dataset.visualLeftRatio);
-        const visualTopRatio = parseFloat(card.dataset.visualTopRatio);
-        const cardWidth = card.offsetWidth;
-        const cardHeight = card.offsetHeight;
-        const newX = visualLeftRatio * containerWidth - defaultCenterXRatio;
-        const newY = visualTopRatio * containerHeight - defaultCenterYRatio;
-        card.style.left = newX + 'px';
-        card.style.top = newY + 'px';
-    }
-	let totalCardsToLoad = 0;
-	let loadedCards = 0;
-	let isWaiting = false;
-	function LoadURL(deckParam) {
-		const cardEntries = deckParam.split(';');
-		let totalCardsInURL = 0;
-		cardEntries.forEach(entry => {
-			const [num, code, type] = entry.split('_');
-			if (!isNaN(num) && code && (type === 'D' || type === 'E')) {
-				totalCardsInURL += parseInt(num);
-			}
-		});
-		totalCardsToLoad += totalCardsInURL;
-		cardEntries.forEach(entry => {
-			const [num, code, type] = entry.split('_');
-			if (!isNaN(num) && code && (type === 'D' || type === 'E')) {
-				const deckType = type === 'D' ? "Deck" : "Egg";
-				addCards(parseInt(num), code.toUpperCase().trim(), deckType);
-			}
-		});
-	}
-	function LoadDeck() {
-		let currentDeckType = "Deck";
-		let input = document.getElementById('text-input').value.trim();
-		input = input.replace(/[()]/g, '');
-		const lines = input.split('\n');
-		const cardEntries = [];
-		let totalCardsInDeck = 0;
-		lines.forEach(line => {
-			line = line.trim();
-			if (line.startsWith('//')) {
-				if (line.toLowerCase().includes('egg deck')) {
-					currentDeckType = "Egg";
-				} else {
-					currentDeckType = "Deck";
-				}
-				return;
-			}
-			const firstChar = line.charAt(0);
-			if (!isNaN(firstChar)) {
-				const parts = line.split(' ');
-				const numCards = parseInt(firstChar);
-				const cardCode = parts[parts.length - 1].toUpperCase().trim();
-				if (!isNaN(numCards) && cardCode) {
-					totalCardsInDeck += numCards;
-					for (let i = 0; i < numCards; i++) {
-						cardEntries.push({ code: cardCode, type: currentDeckType });
-					}
-				}
-			}
-		});
-		totalCardsToLoad += totalCardsInDeck;
-		Shuffling(cardEntries);
-		cardEntries.forEach(entry => {
-			addCards(1, entry.code, entry.type);
-		});
-		popup.style.display = 'none';
-	}
-	function addCards(num, code, type) {
-            const apiUrl = `https://digimoncard.io/api/search.php?card=${code}`;
-            GetInfo(apiUrl)
-                .then(description => {
-                    const cardPromises = [];
-                    for (let i = 0; i < num; i++) {
-                        cardPromises.push(GetCardInfo(code, type, description));
+    <div class="bottom"><a target="_blank" href="">By Fabrizio Caceres</a></div>
+
+    <script>
+        // Function to place hearts randomly in the background
+        function placeHearts() {
+            const body = document.body;
+            const heartUrl = "https://raw.githubusercontent.com/DracoFabz/DracoFabz.github.io/refs/heads/main/FondoUVM.png";
+            const heartCount = 100; // Number of hearts to place
+            const heartSize = 15; // Size of each heart
+            const hearts = []; // Array to store heart positions
+
+            // Function to check if a position is valid (100px away from other hearts)
+            function isValidPosition(x, y) {
+                for (let heart of hearts) {
+                    const dx = heart.x - x;
+                    const dy = heart.y - y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 100) {
+                        return false; // Too close to another heart
                     }
-                    return cardPromises;
-                })
-                .then(cardPromises => {
-                    updateLoadingBar(cardPromises);
-                })
-                .catch(error => {
-                    console.error('Error fetching card description:', error);
-                });
-            popup.style.display = 'none';
+                }
+                return true; // Valid position
+            }
+
+            for (let i = 0; i < heartCount; i++) {
+                let x, y;
+
+                // Find a valid position for the heart
+                do {
+                    x = Math.random() * (window.innerWidth - heartSize);
+                    y = Math.random() * (window.innerHeight - heartSize);
+                } while (!isValidPosition(x, y));
+
+                // Store the heart's position
+                hearts.push({ x, y });
+
+                const heart = document.createElement('img');
+                heart.src = heartUrl;
+                heart.className = 'heart'; // Add class for styling
+                heart.style.width = heartSize + 'px';
+                heart.style.height = heartSize + 'px';
+
+                heart.style.left = x + 'px';
+                heart.style.top = y + 'px';
+
+                body.appendChild(heart);
+            }
         }
-	let mulliganTriggered = false;
-	function updateLoadingBar(cardPromises) {
-		mulliganTriggered = false;
-		document.getElementById('loading-container').style.display = 'block';
-		const loadingBar = document.getElementById('loading-bar');
-		function updateProgress() {
-			const progress = (loadedCards / totalCardsToLoad) * 100;
-			loadingBar.style.width = `${progress}%`;
-			loadingBar.textContent = `${Math.round(progress)}%`;
-			if (loadedCards >= totalCardsToLoad) {
-				clearInterval(progressInterval);
-				document.getElementById('loading-container').style.display = 'none';
-				if (document.getElementById('mulligan-checkbox').checked && !mulliganTriggered) {
-					mulliganTriggered = true;
-					Mulligan();
-				}
-			}
-		}
-		let progressInterval = setInterval(updateProgress, 100);
-		Promise.all(cardPromises)
-			.then(() => {
-				loadedCards += cardPromises.length;
-			})
-			.catch(error => {
-				console.error('Error loading one or more cards:', error);
-			});
-	}
-	function GetInfo(apiUrl) {
-		return fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl))
-			.then(response => response.text())
-			.then(responseText => {
-				const data = JSON.parse(responseText);
-				if (data.length > 0) {
-					const cardData = data[0];
-					return {
-						name: cardData.name,
-						main_effect: cardData.main_effect,
-						source_effect: cardData.source_effect};
-				} else {return {
-						name: 'Unknown',
-						main_effect: 'No effect available',
-						source_effect: 'No effect available'
-					};
-				}
-			})
-			.catch(() => ({
-				name: 'Error',
-				main_effect: 'Failed to fetch effect',
-				source_effect: 'Failed to fetch effect'
-			}));
-	}
-	function GetCardInfo(code, type, description) {
-		return new Promise((resolve, reject) => {
-			const containerWidth = container.offsetWidth;
-			const card = document.createElement('img');
-			const imageUrl = `https://images.digimoncard.io/images/cards/${code}.jpg`;
-			const CardBack = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
-			const img = new Image();
-			img.onload = function() {
-				card.src = imageUrl;
-				card.dataset.originalImageUrl = imageUrl;
-				card.dataset.name = description.name;
-				card.dataset.mainEffect = description.main_effect;
-				card.dataset.sourceEffect = description.source_effect;
-				resolve(card);
-			};
-			img.onerror = function() {
-				card.src = CardBack;
-				card.dataset.originalImageUrl = CardBack;
-				card.dataset.name = description.name;
-				card.dataset.mainEffect = description.main_effect;
-				card.dataset.sourceEffect = description.source_effect;
-				resolve(card);
-			};
-			img.src = imageUrl;
-			card.className = 'card';
-			card.style.width = (containerWidth / 10) + 'px';
-			card.style.height = 'auto';
-			card.dataset.decktype = type;
-			container.appendChild(card);
-			HomeDeck(card);
-			makeDraggable(card);
-			Hovering(card);
-		});
-	}
-	function HomeDeck(card) {
-		const containerWidth = container.offsetWidth;
-		const containerHeight = container.offsetHeight;
-		const cardWidth = card.offsetWidth;
-		const cardHeight = card.offsetHeight;
-		let defaultCenterXRatio, defaultCenterYRatio;
-		if (card.dataset.decktype === "Egg") 
-			{defaultCenterXRatio = 0.065;defaultCenterYRatio = 0.708;} 
-			else 
-			{defaultCenterXRatio = 0.867;defaultCenterYRatio = 0.137;}
-		const defaultCenterX = containerWidth * defaultCenterXRatio;
-		const defaultCenterY = containerHeight * defaultCenterYRatio;
-		card.dataset.defaultCenterXRatio = defaultCenterXRatio;
-		card.dataset.defaultCenterYRatio = defaultCenterYRatio;
-		card.dataset.visualLeftRatio = defaultCenterXRatio;
-		card.dataset.visualTopRatio = defaultCenterYRatio;
-		card.style.transition = 'transform 0.3s';
-		card.style.transform = 'rotate(0deg)';
-		card.src = 'https://github.com/DracoFabz/DracoFabz.github.io/raw/main/Back.png';
-		CardPlace(card);
-		ReCount();
-	}
-	function ShowInfo(event) {
-		if (isSmartphone()) {} else {
-			const card = event.currentTarget;
-			const infoBox = document.createElement('div');
-			infoBox.style.position = 'absolute';
-			infoBox.style.left = `${card.offsetLeft + card.offsetWidth}px`;
-			infoBox.style.top = `${card.offsetTop}px`;
-			infoBox.style.width = `${2.1 * card.offsetHeight}px`;
-			infoBox.style.backgroundColor = 'rgba(128, 128, 128, 0.9)';
-			infoBox.style.color = 'white';
-			infoBox.style.fontSize = 'calc(1.0vw)';
-			infoBox.style.padding = '5px';
-			infoBox.style.display = 'flex';
-			infoBox.style.alignItems = 'flex-start';
-			infoBox.style.justifyContent = 'center';
-			infoBox.style.textAlign = 'left';
-			infoBox.style.borderRadius = '5px';
-			infoBox.style.boxShadow = '0 0 3px rgba(0, 0, 0, 1)';
-			infoBox.style.zIndex = 10000;
-			const combinedText = `${card.dataset.name}\n${card.dataset.mainEffect}\n${card.dataset.sourceEffect}`;
-			const numCharacters = combinedText.length;
-			const fontSize = parseFloat(infoBox.style.fontSize);
-			const boxWidth = parseFloat(infoBox.style.width);
-			const charsPerLine = Math.floor(boxWidth / fontSize);
-			const numLines = Math.ceil(numCharacters / charsPerLine);
-			const calculatedHeight = numLines * fontSize + 3 * fontSize;
-			infoBox.style.height = `${calculatedHeight}px`;
-			infoBox.innerHTML = `
-				<strong>${card.dataset.name}<br>
-				<br>
-				${card.dataset.mainEffect}<br>
-				<br>
-				${card.dataset.sourceEffect}
-			`;
-			container.appendChild(infoBox);
-			const removeInfoBox = () => infoBox.remove();
-			const removeTimeout = setTimeout(removeInfoBox, 6000);
-			function removeOnMouseMove() {
-				infoBox.remove();
-				clearTimeout(removeTimeout);
-				card.removeEventListener('mousemove', removeOnMouseMove);
-			}
-			card.addEventListener('mousemove', removeOnMouseMove);
-		}
-	}
-	function Hovering(card) {
-		if (isSmartphone()) {} else {
-			let hoverTimeout;
-			let isHovered = false;
-			card.addEventListener('mouseenter', () => {
-				isHovered = true;
-				hoverTimeout = setTimeout(() => {
-					if (isHovered) {
-						ShowInfo({ currentTarget: card });
-					}
-				}, 2000);
-			});
-			card.addEventListener('mouseleave', () => {
-				isHovered = false;
-				clearTimeout(hoverTimeout);
-			});
-			card.addEventListener('mousemove', () => {
-				isHovered = true;
-			});
-		}
-	}
-	function ShareLink() {
-		const cards = container.getElementsByClassName('card');
-		const deckEntries = [];
-		Array.from(cards).forEach(card => {
-			if (!card.src.includes('dice')) {
-				const cardCode = card.dataset.originalImageUrl.split('/').pop().split('.')[0];
-				const deckType = card.dataset.decktype === "Deck" ? "D" : "E";
-				deckEntries.push(`${1}_${cardCode}_${deckType}`);
-			}
-		});
-		const groupedEntries = deckEntries.reduce((acc, entry) => {
-			if (acc[entry]) {
-				acc[entry]++;
-			} else {
-				acc[entry] = 1;
-			}
-			return acc;
-		}, {});
-		const finalDeckString = Object.keys(groupedEntries).map(entry => {
-			return `${groupedEntries[entry]}_${entry.split('_')[1]}_${entry.split('_')[2]}`;
-		}).join(';');
-		const fullUrl = `https://dracofabz.github.io/?deck=${finalDeckString}`;
-		ToClip(fullUrl);
-	}
-	function ToClip(text) {
-		const dummyInput = document.createElement('textarea');
-		document.body.appendChild(dummyInput);
-		dummyInput.value = text;
-		dummyInput.select();
-		document.execCommand('copy');
-		document.body.removeChild(dummyInput);
-		alert('Deck link copied to clipboard!');
-	}
-</script>
+
+        // Call the function to place hearts when the document is ready
+        $(document).ready(function() {
+            placeHearts();
+        });
+    </script>
+
 </body>
+
 </html>
