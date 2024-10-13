@@ -13,19 +13,19 @@
     <script src="script.js" type="text/javascript" defer></script>
 	<script src="getSheetData.js" type="text/javascript" defer></script>
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <title>Azucar Al Gusto</title>
+    <title>A8_NFCR - Fabrizio Caceres</title>
     <style>
         body {
             text-align: center;
             background-color: #FFFBF1;
             font-family: 'Book Antiqua', serif;
             color: #6E3420;
-            position: relative; /* Enable positioning for heart placement */
+            position: relative; /* Enable positioning for UVMlogo placement */
             overflow: auto; /* Allow scrolling */
         }
 
-        /* Estilos para los corazones */
-        .heart {
+        /* Estilos para los logones */
+        .UVMlogo {
             position: fixed; /* Mantenerlos fijos en la ventana */
             pointer-events: none; /* Evitar interferencia con clics */
             z-index: 0; /* Asegurarse de que están detrás del contenido */
@@ -34,8 +34,8 @@
         h1 {
             margin-top: 20px;
             font-size: 50px;
-            position: relative; /* Para asegurarse de que está encima de los corazones */
-            z-index: 1; /* Más alto que los corazones */
+            position: relative; /* Para asegurarse de que está encima de los logones */
+            z-index: 1; /* Más alto que los logones */
         }
 
         .banner {
@@ -45,11 +45,11 @@
             justify-content: flex-start;
             background-color: #FFFBF1; /* Mantener background color */
             position: relative; /* Enable positioning for the logo */
-            z-index: 1; /* Más alto que los corazones */
+            z-index: 1; /* Más alto que los logones */
         }
 
         .banner img {
-            height: 90px; /* Logo height */
+            height: 50px; /* Logo height */
             margin-right: 10px; /* Space between logo and title */
         }
 
@@ -59,8 +59,8 @@
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             grid-gap: 10px;
-            position: relative; /* Para asegurarse de que está encima de los corazones */
-            z-index: 1; /* Más alto que los corazones */
+            position: relative; /* Para asegurarse de que está encima de los logones */
+            z-index: 1; /* Más alto que los logones */
         }
 
 		.panel {
@@ -73,27 +73,27 @@
 		}
 
         
-        #p2.panel {
-            grid-column: 1 / 3;
+        #p1.panel {
+            grid-column: 1 / 4;
         }
-		#p4.panel {
-            grid-column: 3 / 4;
+		#p2.panel {
+            grid-column: 1 / 4;
         }
 		#p3.panel {
             grid-column: 1 / 4;
         }
-		#p5.panel {
+		#p4.panel {
             grid-column: 1 / 4;
         }
-		#p1.panel {
+		#p5.panel {
             grid-column: 1 / 4;
         }
 
         .bottom {
             font-size: 5px;
             margin-top: 15px;
-            position: relative; /* Para asegurarse de que está encima de los corazones */
-            z-index: 1; /* Más alto que los corazones */
+            position: relative; /* Para asegurarse de que está encima de los logones */
+            z-index: 1; /* Más alto que los logones */
         }
 
         .bottom a {
@@ -109,30 +109,37 @@
         <h1>UVM</h1>
     </div>
     <div class="dashboard-wrapper"> 
+		<div id="p1" class="panel">
+            <h2>Porcentaje de población (por estado) en pobreza moderada</h2>
+            <div id="p1Chart"></div>
+				<script type="text/javascript">
+				google.charts.load("current", { packages: ["BarChart"] });
+				</script>
+        </div>
         <div id="p2" class="panel">
-            <h2>Tabla 1</h2>
+            <h2>Número de población en pobreza moderada por estado</h2>
             <div id="p2Chart"></div>
 				<script type="text/javascript">
 				google.charts.load("current", { packages: ["BarChart"] });
 				</script>
         </div>
-		<div id="p4" class="panel">
-            <h2>Tabla 2</h2>
-            <div id="p4Chart"></div>
+		<div id="p3" class="panel">
+            <h2>Población en pobreza extrema y moderada</h2>
+            <div id="p3Chart"></div>
 				<script type="text/javascript">
 				google.charts.load("current", { packages: ["PieChart"] });
 				</script>
         </div>
-        <div id="p3" class="panel">
-            <h2>Tabla 3</h2>
-            <div id="p3Chart"></div>
+        <div id="p4" class="panel">
+            <h2>Evolución de la pobreza en México</h2>
+            <div id="p4Chart"></div>
 				<script type="text/javascript">
 				google.charts.load("current", { packages: ["Column"] });
 				</script>
         </div>
         
         <div id="p5" class="panel">
-            <h2>Tabla 4</h2>
+            <h2>Población con al menos una carencia social</h2>
             <div id="p5Chart"></div>
 				<script type="text/javascript">
 				google.charts.load("current", { packages: ["calendar"] });
@@ -143,55 +150,55 @@
     <div class="bottom"><a target="_blank" href="">By Fabrizio Caceres</a></div>
 
     <script>
-        // Function to place hearts randomly in the background
-        function placeHearts() {
+        // Function to place UVMlogos randomly in the background
+        function placeUVMlogos() {
             const body = document.body;
-            const heartUrl = "https://raw.githubusercontent.com/DracoFabz/DracoFabz.github.io/refs/heads/main/FondoUVM.png";
-            const heartCount = 100; // Number of hearts to place
-            const heartSize = 15; // Size of each heart
-            const hearts = []; // Array to store heart positions
+            const UVMlogoUrl = "https://raw.githubusercontent.com/DracoFabz/DracoFabz.github.io/refs/heads/main/FondoUVM.png";
+            const UVMlogoCount = 100; // Number of UVMlogos to place
+            const UVMlogoSize = 15; // Size of each UVMlogo
+            const UVMlogos = []; // Array to store UVMlogo positions
 
-            // Function to check if a position is valid (100px away from other hearts)
+            // Function to check if a position is valid (100px away from other UVMlogos)
             function isValidPosition(x, y) {
-                for (let heart of hearts) {
-                    const dx = heart.x - x;
-                    const dy = heart.y - y;
+                for (let UVMlogo of UVMlogos) {
+                    const dx = UVMlogo.x - x;
+                    const dy = UVMlogo.y - y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     if (distance < 100) {
-                        return false; // Too close to another heart
+                        return false; // Too close to another UVMlogo
                     }
                 }
                 return true; // Valid position
             }
 
-            for (let i = 0; i < heartCount; i++) {
+            for (let i = 0; i < UVMlogoCount; i++) {
                 let x, y;
 
-                // Find a valid position for the heart
+                // Find a valid position for the UVMlogo
                 do {
-                    x = Math.random() * (window.innerWidth - heartSize);
-                    y = Math.random() * (window.innerHeight - heartSize);
+                    x = Math.random() * (window.innerWidth - UVMlogoSize);
+                    y = Math.random() * (window.innerHeight - UVMlogoSize);
                 } while (!isValidPosition(x, y));
 
-                // Store the heart's position
-                hearts.push({ x, y });
+                // Store the UVMlogo's position
+                UVMlogos.push({ x, y });
 
-                const heart = document.createElement('img');
-                heart.src = heartUrl;
-                heart.className = 'heart'; // Add class for styling
-                heart.style.width = heartSize + 'px';
-                heart.style.height = heartSize + 'px';
+                const UVMlogo = document.createElement('img');
+                UVMlogo.src = UVMlogoUrl;
+                UVMlogo.className = 'UVMlogo'; // Add class for styling
+                UVMlogo.style.width = UVMlogoSize + 'px';
+                UVMlogo.style.height = UVMlogoSize + 'px';
 
-                heart.style.left = x + 'px';
-                heart.style.top = y + 'px';
+                UVMlogo.style.left = x + 'px';
+                UVMlogo.style.top = y + 'px';
 
-                body.appendChild(heart);
+                body.appendChild(UVMlogo);
             }
         }
 
-        // Call the function to place hearts when the document is ready
+        // Call the function to place UVMlogos when the document is ready
         $(document).ready(function() {
-            placeHearts();
+            placeUVMlogos();
         });
     </script>
 
