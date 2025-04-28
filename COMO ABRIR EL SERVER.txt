@@ -1,3 +1,0 @@
-1- abrir CMD
-2- poner cd "C:\Users\fabri\OneDrive\Documentos\GitHub Repositories\DracoFabz"
-3- poner python -m http.server 8000
