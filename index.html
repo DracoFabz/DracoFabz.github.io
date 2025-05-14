@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DracoTCG</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="banner">DracoTCG - V2.11</div>
+    <div id="buttons-banner">
+		<button class="button" id="import-button">Add Deck</button>
+		<button class="button" id="clear-deck-button">Clear Deck</button>
+		<button class="button" id="mulligan-button">Mulligan</button>
+		<button class="button" id="share-deck-button">Share Deck</button>
+		<button class="button" id="message-button">Conctact DracoFabz</button> <!-- NUEVO BOTÓN -->
+		<button class="button" id="help-button">How to load a Deck</button>
+	</div>
+    <div id="drag-container">
+    </div>
+	<div id="loading-container">
+		<h2>Loading cards...</h2>
+        <div id="loading-bar">0%</div>
+        <label>
+            <input type="checkbox" id="mulligan-checkbox" checked> Mulligan when finish loading
+        </label>
+    </div>
+    <div id="popup">
+        <h2>Importing Deck</h2>
+        <p>Paste here the codes from Digimon.io</p>
+        <textarea id="text-input"></textarea>
+        <div id="popup-buttons">
+            <button class="button" id="load-code-button">Load Code</button>
+            <button class="button" id="go-back-button">Go Back</button>
+        </div>
+    </div>
+	<div id="message-popup" style="display:none;">
+		<h2>Write here to send a message to DracoFabz</h2>
+		<input type="text" id="name-input" placeholder="Name" />
+		<input type="text" id="phone-input" placeholder="Phone Number, or Mail" />
+		<textarea id="message-input" placeholder="Message or Question"></textarea>
+		<div id="message-popup-buttons">
+			<button class="button" id="send-message-button">Send</button>
+			<button class="button" id="back-message-button">Go Back</button>
+		</div>
+	</div>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+<script src="scriptbuttons.js"></script>
+<script src="cardmanager.js"></script>
+<script src="simulator.js"></script>
+<script src="conect.js"></script>
+</body>
+</html>
