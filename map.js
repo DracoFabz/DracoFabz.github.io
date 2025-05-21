@@ -1,94 +1,98 @@
-// --- Inicializar Mapa ---
-let map = L.map('map', {
-  zoomControl: true,
-  minZoom: 14,
-  maxZoom: 18
-});
+async function initMap() {
+  const { Map, RenderingType } = await google.maps.importLibrary("maps");
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const userLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+      const map = new Map(document.getElementById("map"), {
+        center: userLocation,
+        zoom: 19,
+        minZoom: 17,
+        maxZoom: 25,
+        mapId: "97c27789eda03e0d5a950670",
+        renderingType: RenderingType.VECTOR,
+        tiltInteractionEnabled: false,
+        headingInteractionEnabled: true,
+        tilt: 70,
+        heading: 360,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        zoomControl: true,
+        scrollwheel: true,
+        disableDoubleClickZoom: true,
+		buildingsEnabled: true
+      });
+      const buttons = [
+        ["Rotate Left", "rotate", 20, google.maps.ControlPosition.RIGHT_CENTER],
+        ["Rotate Right", "rotate", -20, google.maps.ControlPosition.LEFT_CENTER]
+      ];
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '',
-}).addTo(map);
+      buttons.forEach(([text, mode, amount, position]) => {
+        const controlDiv = document.createElement("div");
+        const controlUI = document.createElement("button");
 
-// --- Crear ícono con foto y nombre ---
-function createUserMarker(user, latlng) {
-  const img = document.createElement('img');
-  img.src = user.photoURL;
-  img.className = 'user-marker';
-
-  const icon = L.divIcon({
-    html: img.outerHTML,
-    iconSize: [40, 40],
-    className: ''
-  });
-
-  const marker = L.marker(latlng, { icon }).addTo(map);
-
-  marker.bindPopup(`<small>${user.name}</small>`, { closeButton: false });
-  marker.openPopup();
-
-  return marker;
-}
-
-let currentMarker;
-
-// --- Obtener ubicación y actualizar Firebase ---
-function updateLocation() {
-  navigator.geolocation.getCurrentPosition(position => {
-    const { latitude, longitude } = position.coords;
-    const latlng = [latitude, longitude];
-
-    map.setView(latlng, 16);
-    
-    if (currentMarker) currentMarker.remove();
-    currentMarker = createUserMarker(user, latlng);
-
-    // Guardar en Firebase
-    db.ref('locations/' + user.id).set({
-      name: user.name,
-      photoURL: user.photoURL,
-      lat: latitude,
-      lng: longitude,
-      timestamp: Date.now()
-    });
-  });
-}
-
-// --- Cargar otros usuarios cerca ---
-function loadNearbyUsers() {
-  db.ref('locations').on('value', snapshot => {
-    const data = snapshot.val();
-    if (!data) return;
-
-    Object.keys(data).forEach(uid => {
-      if (uid === user.id) return;
-
-      const u = data[uid];
-      const distance = getDistanceFromLatLonInKm(currentMarker.getLatLng().lat, currentMarker.getLatLng().lng, u.lat, u.lng);
-      if (distance <= 1) {
-        createUserMarker(u, [u.lat, u.lng]);
+        controlUI.classList.add("ui-button");
+        controlUI.innerText = text;
+        controlUI.addEventListener("click", () => {
+          adjustMap(mode, amount);
+        });
+        controlDiv.appendChild(controlUI);
+        map.controls[position].push(controlDiv);
+      });
+      function adjustMap(mode, amount) {
+        if (mode === "tilt") {
+          map.setTilt(map.getTilt() + amount);
+        } else if (mode === "rotate") {
+          map.setHeading(map.getHeading() + amount);
+        }
       }
-    });
-  });
+      new google.maps.Marker({
+        position: userLocation,
+        map: map,
+        title: "Tú",
+        label: {
+          text: "Tú",
+          color: "#000000",
+          fontWeight: "bold",
+          fontSize: "14px"
+        },
+        icon: {
+          url: "https://raw.githubusercontent.com/DracoFabz/DracoFabz.github.io/refs/heads/main/pinYou.png",
+          scaledSize: new google.maps.Size(60, 60)
+        }
+      });
+      const marker = new google.maps.Marker({
+        position: { lat: 21.028754, lng: -89.647652 },
+        map: map,
+        title: "TCG",
+        label: {
+          text: "Hammering",
+          color: "#0C5474",
+          fontWeight: "bold",
+          fontSize: "14px",
+          className: "map-label"
+        },
+        icon: {
+          url: "https://raw.githubusercontent.com/DracoFabz/DracoFabz.github.io/refs/heads/main/pinTCG.png",
+          scaledSize: new google.maps.Size(60, 60)
+        }
+      });
+      const infoWindow = new google.maps.InfoWindow({
+        content:
+          "<strong>Hammering</strong><br><a href='https://maps.app.goo.gl/e4trqSrDKGgqJ26s5' target='_blank'>Digimon, Yugioh!, Pokemon</a>"
+      });
+      marker.addListener("click", () => {
+        infoWindow.open(map, marker);
+      });
+    },
+    (error) => {
+      alert("No se pudo obtener la ubicación.");
+      console.error("Error obteniendo ubicación:", error);
+    }
+  );
 }
 
-// --- Distancia entre 2 coordenadas (Haversine) ---
-function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = deg2rad(lat2 - lat1);
-  const dLon = deg2rad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(deg2rad(lat1)) *
-    Math.cos(deg2rad(lat2)) *
-    Math.sin(dLon / 2) ** 2;
-
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-function deg2rad(deg) {
-  return deg * (Math.PI / 180);
-}
-
-// --- Ciclo de actualización ---
-updateLocation();
-loadNearbyUsers();
-setInterval(updateLocation, 60000); // cada 1 minuto
+window.onload = initMap;

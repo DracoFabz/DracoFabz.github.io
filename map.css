@@ -70,3 +70,9 @@ body, html {
   border-radius: 50%;
   border: 2px solid #000;
 }
+
+.map-label {
+    text-shadow: 2px 2px 2px white; /* Simula un borde blanco */
+    font-size: 14px;
+    font-weight: bold;
+}

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Ubicaciones Guardadas</title>
+    <style>
+        #map {
+            width: 100%;
+            height: 500px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCharsZtPzngkLg03t21kZqRRTREhKYaFo&callback=initMap" async defer></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js"></script>
+    <script src="addplaces.js" defer></script>
+</head>
+<body>
+    <h1>Agregar Ubicaciones al Mapa</h1>
+    <form id="locationForm">
+        <label>Nombre: <input type="text" id="name" required></label><br>
+        <label>Latitud: <input type="number" id="latitude" step="any" required></label><br>
+        <label>Longitud: <input type="number" id="longitude" step="any" required></label><br>
+        <label>Icono URL: <input type="url" id="iconUrl"></label><br>
+        <label>Link de Google Maps: <input type="url" id="mapsLink"></label><br>
+        <button type="submit">Agregar Ubicación</button>
+    </form>
+
+    <div id="map"></div>
+</body>
+</html>
