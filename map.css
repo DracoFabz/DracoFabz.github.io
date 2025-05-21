@@ -1,0 +1,72 @@
+body, html {
+  margin: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+
+.taskbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background-color: #222;
+  color: white;
+  padding: 10px 20px;
+  position: relative;
+  z-index: 1000;
+}
+
+.user-info {
+  position: relative;
+  cursor: pointer;
+}
+
+.user-info img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.user-info span {
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+.dropdown {
+  display: none;
+  position: absolute;
+  top: 60px;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: 200px;
+  z-index: 100;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.dropdown input,
+.dropdown button {
+  width: 100%;
+  margin-top: 5px;
+}
+
+#map {
+  height: calc(100vh - 60px);
+  width: 100vw;
+}
+
+.user-marker-label {
+  text-align: center;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.user-marker-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #000;
+}

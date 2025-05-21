@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DracoTCG - Mapa</title>
+  <link rel="stylesheet" href="map.css"/>
+  <link rel="icon" type="image/x-icon" href="/DracoTCG-Logotype.ico">
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+
+  <!-- Google Maps JavaScript SDK -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCharsZtPzngkLg03t21kZqRRTREhKYaFo"></script>
+</head>
+<body>
+  <header class="taskbar">
+    <div class="user-info" id="user-info">
+      <img src="" alt="Foto de perfil" id="profile-pic">
+      <span id="display-name"></span>
+      <div class="dropdown" id="user-dropdown">
+        <label>Modificar Perfil</label>
+        <input type="text" id="nickname-input" placeholder="Nuevo apodo">
+        <input type="file" id="profile-pic-input">
+        <button onclick="saveProfileChanges()">Guardar</button>
+        <button onclick="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="height: calc(100vh - 60px);">
+    <div id="map" style="width: 100%; height: 100%;"></div>
+  </main>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDXRpeWmji7tJPh3Nqhfv5Z4c8iW9LZVz4",
+      authDomain: "dracofabz-c19d1.firebaseapp.com",
+      databaseURL: "https://dracofabz-c19d1-default-rtdb.firebaseio.com",
+      projectId: "dracofabz-c19d1",
+      storageBucket: "dracofabz-c19d1.appspot.com",
+      messagingSenderId: "881391272608",
+      appId: "1:881391272608:web:d1915a2d8e7f9475b87fc5"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    firebase.auth().onAuthStateChanged(async (user) => {
+      if (user) {
+        document.getElementById("display-name").textContent = user.displayName || user.email;
+        if (user.photoURL) {
+          document.getElementById("profile-pic").src = user.photoURL;
+        } else {
+          try {
+            const url = await firebase.storage().ref(`profiles/${user.uid}/profile.jpg`).getDownloadURL();
+            document.getElementById("profile-pic").src = url;
+          } catch (err) {
+            console.log("Sin imagen de perfil");
+          }
+        }
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
+      });
+    }
+
+    function saveProfileChanges() {
+      const user = firebase.auth().currentUser;
+      const newNickname = document.getElementById("nickname-input").value;
+      const profilePicInput = document.getElementById("profile-pic-input").files[0];
+
+      if (newNickname) {
+        user.updateProfile({ displayName: newNickname });
+      }
+
+      if (profilePicInput) {
+        const storageRef = firebase.storage().ref(`profiles/${user.uid}/profile.jpg`);
+        storageRef.put(profilePicInput).then(() => {
+          storageRef.getDownloadURL().then(url => {
+            user.updateProfile({ photoURL: url });
+            document.getElementById("profile-pic").src = url;
+          });
+        });
+      }
+    }
+
+    function initMap() {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+
+          const customMapStyle = [																																																																																																																																																																																																																																																																																																																																																																																											
+  {
+    "elementType": "labels",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#ffffff"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.text.stroke",
+    "stylers": [
+      {
+        "color": "#000000"
+      },
+      {
+        "lightness": 13
+      }
+    ]
+  },
+  {
+    "featureType": "administrative",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "visibility": "on"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#ff0000"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#144b53"
+      },
+      {
+        "lightness": 15
+      },
+      {
+        "visibility": "off"
+      },
+      {
+        "weight": 1.5
+      }
+    ]
+  },
+  {
+    "featureType": "administrative.land_parcel",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative.neighborhood",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "landscape",
+    "stylers": [
+      {
+        "color": "#08304b"
+      }
+    ]
+  },
+  {
+    "featureType": "landscape.man_made",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#76ceaa"
+      },
+      {
+        "visibility": "on"
+      }
+    ]
+  },
+  {
+    "featureType": "landscape.natural",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#019578"
+      }
+    ]
+  },
+  {
+    "featureType": "poi",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "poi",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#0c4152"
+      },
+      {
+        "lightness": 5
+      }
+    ]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#5d9940"
+      },
+      {
+        "visibility": "on"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "labels.icon",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "road.arterial",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#657f82"
+      }
+    ]
+  },
+  {
+    "featureType": "road.arterial",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#fde490"
+      },
+      {
+        "lightness": 15
+      },
+      {
+        "visibility": "on"
+      },
+      {
+        "weight": 3
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#657f82"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#fde490"
+      },
+      {
+        "lightness": 25
+      },
+      {
+        "visibility": "on"
+      },
+      {
+        "weight": 3
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway.controlled_access",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#657f82"
+      },
+      {
+        "visibility": "on"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway.controlled_access",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#fde490"
+      },
+      {
+        "visibility": "on"
+      },
+      {
+        "weight": 3
+      }
+    ]
+  },
+  {
+    "featureType": "road.local",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#000000"
+      }
+    ]
+  },
+  {
+    "featureType": "road.local",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#657f82"
+      },
+      {
+        "visibility": "on"
+      }
+    ]
+  },
+  {
+    "featureType": "road.local",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#fde490"
+      },
+      {
+        "visibility": "on"
+      },
+      {
+        "weight": 3
+      }
+    ]
+  },
+  {
+    "featureType": "transit",
+    "stylers": [
+      {
+        "color": "#146474"
+      },
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "stylers": [
+      {
+        "color": "#021019"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#22a0ed"
+      }
+    ]
+  }
+];
+
+          const map = new google.maps.Map(document.getElementById("map"), {
+            center: userLocation,
+            zoom: 16,
+            styles: customMapStyle,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: false
+          });
+
+          new google.maps.Marker({
+            position: userLocation,
+            map: map,
+            title: "Tu ubicación",
+            icon: {
+              url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+            }
+          });
+        },
+        (error) => {
+          alert("No se pudo obtener la ubicación.");
+          console.error(error);
+        }
+      );
+    }
+
+    window.onload = initMap;
+  </script>
+</body>
+</html>
