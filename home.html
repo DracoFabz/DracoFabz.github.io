@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DracoTCG - Home</title>
+  <link rel="stylesheet" href="home.css">
+  <link rel="icon" type="image/x-icon" href="/DracoTCG-Logotype.ico">
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+</head>
+<body>
+  <header class="taskbar">
+    <div class="user-info" id="user-info">
+      <img src="" alt="Foto de perfil" id="profile-pic">
+      <span id="display-name"></span>
+      <div class="dropdown" id="user-dropdown">
+        <label>Modificar Perfil</label>
+        <input type="text" id="nickname-input" placeholder="Nuevo apodo">
+        <input type="file" id="profile-pic-input">
+        <button onclick="saveProfileChanges()">Guardar</button>
+        <button onclick="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="menu">
+      <button>Mensajes</button>
+      <button>Trades</button>
+      <button>Eventos</button>
+      <button>Mapa</button>
+    </div>
+  </main>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDXRpeWmji7tJPh3Nqhfv5Z4c8iW9LZVz4",
+      authDomain: "dracofabz-c19d1.firebaseapp.com",
+      databaseURL: "https://dracofabz-c19d1-default-rtdb.firebaseio.com",
+      projectId: "dracofabz-c19d1",
+      storageBucket: "dracofabz-c19d1.firebasestorage.app",
+      messagingSenderId: "881391272608",
+      appId: "1:881391272608:web:d1915a2d8e7f9475b87fc5"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+  <script src="home.js"></script>
+</body>
+</html>

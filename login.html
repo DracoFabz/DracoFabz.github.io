@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>DracoTCG - LogIn</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/x-icon" href="/DracoTCG-Logotype.ico">
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Bienvenido a DracoTCG</h1>
+    <button id="googleLogin">Iniciar sesión con Google</button>
+    <button id="skipLogin">Continuar como invitado</button>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDXRpeWmji7tJPh3Nqhfv5Z4c8iW9LZVz4",
+      authDomain: "dracofabz-c19d1.firebaseapp.com",
+      databaseURL: "https://dracofabz-c19d1-default-rtdb.firebaseio.com",
+      projectId: "dracofabz-c19d1",
+      storageBucket: "dracofabz-c19d1.firebasestorage.app",
+      messagingSenderId: "881391272608",
+      appId: "1:881391272608:web:d1915a2d8e7f9475b87fc5"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+  <script src="auth.js"></script>
+</body>
+</html>
