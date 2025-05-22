@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Agregar Nueva Ubicación</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="addlocation.js" defer></script>
+</head>
+<body>
+  <h2>Formulario para Nueva Ubicación</h2>
+  <form id="locationForm">
+    <label>Nombre de la tienda:<br><input type="text" id="name" required></label><br><br>
+    <label>Latitud:<br><input type="number" id="lat" step="any" required></label><br><br>
+    <label>Longitud:<br><input type="number" id="lng" step="any" required></label><br><br>
+    <label>Descripción de productos:<br><input type="text" id="description" required></label><br><br>
+    <label>URL de Google Maps:<br><input type="url" id="googleMapsUrl" required></label><br><br>
+    <button type="submit">Guardar ubicación</button>
+  </form>
+  <p id="message"></p>
+</body>
+</html>
