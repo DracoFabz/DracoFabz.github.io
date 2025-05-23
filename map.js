@@ -6,17 +6,16 @@ async function initMap() {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       };
-
       const map = new Map(document.getElementById("map"), {
         center: userLocation,
         zoom: 18,
-        minZoom: 14,
-        maxZoom: 19,
+        minZoom: 17,
+        maxZoom: 20,
         mapId: "97c27789eda03e0d5a950670",
         renderingType: RenderingType.VECTOR,
-        tiltInteractionEnabled: true,
+        tiltInteractionEnabled: false,
         headingInteractionEnabled: true,
-        tilt: 75,
+        tilt: 50,
         heading: 360,
         mapTypeControl: false,
         streetViewControl: false,
@@ -26,54 +25,63 @@ async function initMap() {
         disableDoubleClickZoom: true,
         buildingsEnabled: true
       });
+const buttons = [
+  ["rightarrow.png", "rotate", 45, google.maps.ControlPosition.RIGHT_CENTER],
+  ["leftarrow.png", "rotate", -45, google.maps.ControlPosition.LEFT_CENTER]
+];
+buttons.forEach(([icon, mode, amount, position]) => {
+  const controlDiv = document.createElement("div");
+  const controlUI = document.createElement("button");
 
-      // Botones para rotar
-		const buttons = [
-		  ["Rotate Left", "rotate", 20, google.maps.ControlPosition.RIGHT_CENTER],
-		  ["Rotate Right", "rotate", -20, google.maps.ControlPosition.LEFT_CENTER],
-		  ["Tilt Up", "tilt", -10, google.maps.ControlPosition.TOP_CENTER],
-		  ["Tilt Down", "tilt", 10, google.maps.ControlPosition.BOTTOM_CENTER]
-		];
+  controlUI.classList.add("ui-button");
+  controlUI.style.background = `url(${icon}) no-repeat center`;
+  controlUI.style.backgroundSize = "contain";
+  controlUI.style.width = "40px"; 
+  controlUI.style.height = "40px";
+  controlUI.style.border = "none";
+  controlUI.style.cursor = "pointer";
 
-      buttons.forEach(([text, mode, amount, position]) => {
-        const controlDiv = document.createElement("div");
-        const controlUI = document.createElement("button");
+  controlUI.addEventListener("click", () => {
+    const newHeading = map.getHeading() + amount;
+    map.setHeading(newHeading);
+  });
 
-        controlUI.classList.add("ui-button");
-        controlUI.innerText = text;
-        controlUI.addEventListener("click", () => {
-          adjustMap(mode, amount);
-        });
-        controlDiv.appendChild(controlUI);
-        map.controls[position].push(controlDiv);
-      });
+  controlDiv.appendChild(controlUI);
+  map.controls[position].push(controlDiv);
+});
 
-      function adjustMap(mode, amount) {
-        if (mode === "tilt") {
-          map.setTilt(map.getTilt() + amount);
-        } else if (mode === "rotate") {
-          map.setHeading(map.getHeading() + amount);
-        }
-      }
 
-      // Agrega marcador de usuario
-      new google.maps.Marker({
-        position: userLocation,
-        map: map,
-        title: "Tú",
-        label: {
-          text: "Tú",
-          color: "#000000",
-          fontWeight: "bold",
-          fontSize: "14px"
-        },
-        icon: {
-          url: "https://raw.githubusercontent.com/DracoFabz/DracoFabz.github.io/refs/heads/main/pinYou.png",
-          scaledSize: new google.maps.Size(60, 60)
-        }
-      });
-
-      //  Obtener ubicaciones desde Firebase y generar marcadores
+// Agrega marcador de usuario
+const shadowMarker = new google.maps.Marker({
+  position: { 
+    lat: userLocation.lat, 
+    lng: userLocation.lng + 0.00001
+  },
+  map: map,
+  icon: {
+    url: "/shadow.png",
+    scaledSize: new google.maps.Size(25, 15),
+    anchor: new google.maps.Point(12.5, 9) 
+  },
+  zIndex: 1
+});
+const playerMarker = new google.maps.Marker({
+  position: userLocation,
+  map: map,
+  title: "Player",
+  label: {
+    text: "You",
+    color: "#FF4F52",
+    fontWeight: "bold",
+    fontSize: "14px",
+    className: "map-label"
+  },
+  icon: {
+    url: "/pinPlayer.png",
+    scaledSize: new google.maps.Size(150, 150)
+  },
+  zIndex: 10
+});
       const dbRef = firebase.database().ref("locations");
       dbRef.once("value").then((snapshot) => {
         snapshot.forEach((childSnapshot) => {
@@ -85,21 +93,20 @@ async function initMap() {
             title: "TCG",
             label: {
               text: data.name,
-              color: "#0C5474",
+              color: "#DCD70B",
               fontWeight: "bold",
-              fontSize: "14px",
+              fontSize: "24px",
               className: "map-label"
             },
             icon: {
-              url: "https://raw.githubusercontent.com/DracoFabz/DracoFabz.github.io/refs/heads/main/pinTCG.png",
-              scaledSize: new google.maps.Size(60, 60)
+              url: "/pinTCG.png",
+              scaledSize: new google.maps.Size(260, 260),
+			  anchor: new google.maps.Point(130, 240)
             }
           });
-
           const infoWindow = new google.maps.InfoWindow({
             content: `<strong>${data.name}</strong><br><a href="${data.googleMapsUrl}" target="_blank">${data.description}</a>`
           });
-
           marker.addListener("click", () => {
             infoWindow.open(map, marker);
           });
@@ -114,5 +121,4 @@ async function initMap() {
     }
   );
 }
-
 window.onload = initMap;

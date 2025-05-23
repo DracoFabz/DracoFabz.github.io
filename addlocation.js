@@ -1,6 +1,6 @@
 // Configuración de Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyDXRpeWmji7tJPh3Nqhfv5Z4c8iW9LZVz4",
+  apiKey: "TU_API_KEY",
   authDomain: "dracofabz-c19d1.firebaseapp.com",
   databaseURL: "https://dracofabz-c19d1-default-rtdb.firebaseio.com",
   projectId: "dracofabz-c19d1",
@@ -16,16 +16,31 @@ document.getElementById("locationForm").addEventListener("submit", function (e) 
   e.preventDefault();
 
   const name = document.getElementById("name").value.trim();
-  const lat = parseFloat(document.getElementById("lat").value);
-  const lng = parseFloat(document.getElementById("lng").value);
+  const coordinates = document.getElementById("coordinates").value.trim();
   const description = document.getElementById("description").value.trim();
   const googleMapsUrl = document.getElementById("googleMapsUrl").value.trim();
 
-  if (!name || isNaN(lat) || isNaN(lng) || !description || !googleMapsUrl) {
+  if (!name || !coordinates || !description || !googleMapsUrl) {
     document.getElementById("message").textContent = "Por favor, completa todos los campos correctamente.";
     return;
   }
 
+  // Dividir las coordenadas en latitud y longitud
+  const coordsArray = coordinates.split(",");
+  if (coordsArray.length !== 2) {
+    document.getElementById("message").textContent = "Formato de coordenadas incorrecto. Usa latitud,longitud.";
+    return;
+  }
+
+  const lat = parseFloat(coordsArray[0].trim());
+  const lng = parseFloat(coordsArray[1].trim());
+
+  if (isNaN(lat) || isNaN(lng)) {
+    document.getElementById("message").textContent = "Las coordenadas deben ser números válidos.";
+    return;
+  }
+
+  // Guardar en Firebase
   const newLocationRef = db.ref("locations").push();
   newLocationRef.set({
     name,
