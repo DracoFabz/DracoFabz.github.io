@@ -4,6 +4,6 @@ firebase.auth().onAuthStateChanged(function(user) {
     window.location.href = "/map";
   } else {
     // No autenticado → redirigir a /login.html
-    window.location.href = "/login.html";
+    window.location.href = "/login";
   }
 });
