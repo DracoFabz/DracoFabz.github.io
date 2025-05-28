@@ -197,8 +197,9 @@ function addAllMarkers() {
             });
 
             const infoWindow = new google.maps.InfoWindow({
-              content: `<strong>${data.name}</strong><br><a href="${"https://wa.me/"&data.phone}" target="_blank">${data.description}</a>`
-            });
+			  content: `<strong>${data.name}</strong><br><a href="https://wa.me/${data.phone}" target="_blank">${data.description}</a>`
+			});
+
 
             marker.addListener("click", () => {
               infoWindow.open(map, marker);
