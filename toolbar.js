@@ -33,29 +33,6 @@ firebase.auth().onAuthStateChanged(async (user) => {
 
     console.log("User Data:", { currentUserID, name, description, phone, rating });
 
-    // 🔴 Actualizar ubicación del usuario en Firebase
-    if (navigator.geolocation) {
-      navigator.geolocation.watchPosition((position) => {
-        updateUserLocation(
-          currentUserID,
-          name,
-          name, // Se usa el mismo nombre si no hay otro apodo
-          position.coords.latitude,
-          position.coords.longitude,
-          description,
-          phone,
-          rating
-        );
-      }, (error) => {
-        console.error("Error obteniendo ubicación:", error);
-      }, {
-        enableHighAccuracy: true,
-        maximumAge: 0,
-        timeout: 10000
-      });
-    } else {
-      console.error("Geolocalización no soportada en este navegador.");
-    }
   }).catch((error) => {
     console.error("Error leyendo datos del usuario en Firebase:", error);
   });
@@ -89,7 +66,7 @@ async function saveProfileChanges() {
   location.reload();
 }
 
-// Cerrar sesión
+// Cerrar sesion
 function logout() {
   firebase.auth().signOut().then(() => {
     window.location.href = "/login.html";
