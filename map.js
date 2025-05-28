@@ -197,7 +197,7 @@ function addAllMarkers() {
             });
 
             const infoWindow = new google.maps.InfoWindow({
-              content: `<strong>${data.nickname || data.name}</strong><br>`
+              content: `<strong>${data.name}</strong><br><a href="${"https://wa.me/"&data.phone}" target="_blank">${data.description}</a>`
             });
 
             marker.addListener("click", () => {
@@ -224,10 +224,43 @@ function updateLocationLoop() {
 function updateFirebaseLoop() {
   setInterval(() => {
     if (currentUserId) {
-      updateUserLocation(currentUserId, userLocation.lat, userLocation.lng);
+      const userRef = firebase.database().ref(`users/${currentUserId}`); // 🔹 Lee los datos del usuario desde "users"
+
+      userRef.once("value").then((snapshot) => {
+        const userData = snapshot.val();
+
+        if (userData) {
+          const userLocationRef = firebase.database().ref(`userlocations/${currentUserId}`);
+
+          // 🔹 Datos actualizados con valores obtenidos desde "users"
+          const updatedData = {
+            userId: currentUserId,
+            latitude: userLocation.lat,
+            longitude: userLocation.lng,
+            nickname: userData.nickname || userData.name || "Sin apodo",
+            name: userData.name || "Sin nombre",
+            description: userData.description || "Sin descripción",
+            phone: userData.phone || "No proporcionado",
+            rating: userData.rating || 0
+          };
+
+          // 🔹 Guarda en "userlocations"
+          userLocationRef.set(updatedData)
+            .then(() => console.log(`🔄 Ubicación y datos de ${currentUserId} actualizados correctamente en Firebase.`))
+            .catch(error => console.error("❌ Error actualizando datos en Firebase:", error));
+        } else {
+          console.error("❌ No se encontraron datos de usuario en Firebase.");
+        }
+      }).catch((error) => {
+        console.error("❌ Error obteniendo datos del usuario desde Firebase:", error);
+      });
     }
   }, 10000);
 }
+
+
+
+
 
 document.addEventListener("DOMContentLoaded", initMap);
 
